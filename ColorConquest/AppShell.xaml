@@ -3,13 +3,31 @@
     x:Class="ColorConquest.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:ColorConquest"
+    xmlns:views="clr-namespace:ColorConquest.Views"
     Shell.FlyoutBehavior="Disabled"
-    Title="ColorConquest">
+    Title="Color Conquest">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar>
+        <Tab Title="Home">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:HomePage}"
+                Route="HomePage" />
+        </Tab>
+        <Tab Title="Game">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:GamePage}"
+                Route="GamePage" />
+        </Tab>
+        <Tab Title="Settings">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:SettingsPage}"
+                Route="SettingsPage" />
+        </Tab>
+        <Tab Title="About">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:AboutPage}"
+                Route="AboutPage" />
+        </Tab>
+    </TabBar>
 
 </Shell>
