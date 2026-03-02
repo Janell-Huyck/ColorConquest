@@ -1,4 +1,4 @@
-﻿namespace ColorConquest
+namespace ColorConquest
 {
     public partial class App : Application
     {
