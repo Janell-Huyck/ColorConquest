@@ -5,5 +5,6 @@ namespace ColorConquest.Core;
 /// </summary>
 public static class GameConstants
 {
-    public const int DefaultGridSize = 5;
+    public const int DefaultRowCount = 5;
+    public const int DefaultColumnCount = 5;
 }

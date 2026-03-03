@@ -6,8 +6,14 @@ namespace ColorConquest.Tests.Core;
 public class GameConstantsTests
 {
     [Fact]
-    public void DefaultGridSize_IsFive()
+    public void DefaultRowCount_IsFive()
     {
-        Assert.Equal(5, GameConstants.DefaultGridSize);
+        Assert.Equal(5, GameConstants.DefaultRowCount);
+    }
+
+    [Fact]
+    public void DefaultColumnCount_IsFive()
+    {
+        Assert.Equal(5, GameConstants.DefaultColumnCount);
     }
 }
