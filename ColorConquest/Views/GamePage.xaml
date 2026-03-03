@@ -17,6 +17,17 @@
                FontSize="24"
                HorizontalOptions="Center" />
 
+        <HorizontalStackLayout HorizontalOptions="Center" Spacing="4">
+            <Label Text="Moves:" />
+            <Label Text="{Binding MoveCount}" />
+        </HorizontalStackLayout>
+
+        <Label Text="You win!"
+               HorizontalOptions="Center"
+               FontSize="36"
+               TextColor="{StaticResource Secondary}"
+               IsVisible="{Binding IsWon}" />
+
         <CollectionView x:Name="GameGrid"
                         ItemsSource="{Binding Cells}"
                         SelectionMode="None"
@@ -45,9 +56,12 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Button Text="Reset"
-                Command="{Binding ResetCommand}"
-                HorizontalOptions="Center" />
+        <HorizontalStackLayout HorizontalOptions="Center" Spacing="12">
+            <Button Text="Reset"
+                    Command="{Binding ResetCommand}" />
+            <Button Text="New game"
+                    Command="{Binding NewGameCommand}" />
+        </HorizontalStackLayout>
     </VerticalStackLayout>
 
 </ContentPage>

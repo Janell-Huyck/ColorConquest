@@ -107,5 +107,45 @@ public class Board
         for (var row = 0; row < RowCount; row++)
         for (var column = 0; column < ColumnCount; column++)
             _cells[row, column].ResetToInitial();
+        MoveCount = 0;
+    }
+
+    /// <summary>
+    /// Applies a number of random moves to this board by calling ToggleCellAndAdjacent
+    /// moveCount times with random valid positions. MoveCount is not affected; it's
+    /// intended to track player moves only.
+    /// </summary>
+    public void Scramble(int moveCount, Random random)
+    {
+        if (moveCount < 0) throw new ArgumentOutOfRangeException(nameof(moveCount));
+        if (random is null) throw new ArgumentNullException(nameof(random));
+
+        var originalMoveCount = MoveCount;
+
+        for (var i = 0; i < moveCount; i++)
+        {
+            var row = random.Next(RowCount);
+            var column = random.Next(ColumnCount);
+            ToggleCellAndAdjacent(row, column);
+        }
+
+        MoveCount = originalMoveCount;
+
+        // Treat the scrambled layout as the new "initial" state for resets.
+        for (var row = 0; row < RowCount; row++)
+        for (var column = 0; column < ColumnCount; column++)
+            _cells[row, column].CaptureCurrentAsInitial();
+    }
+
+    /// <summary>
+    /// Creates a new board of the given size and scrambles it with the specified
+    /// number of moves. The resulting board is guaranteed solvable because it's
+    /// built entirely from valid moves applied to a solved board.
+    /// </summary>
+    public static Board CreateScrambled(int rows, int columns, int moveCount, Random random)
+    {
+        var board = new Board(rows, columns);
+        board.Scramble(moveCount, random);
+        return board;
     }
 }

@@ -22,7 +22,7 @@ public class Cell : INotifyPropertyChanged
     public int Column { get; }
 
     /// <summary>Color this cell had when it was created (used for reset).</summary>
-    public bool InitialIsPrimaryColor { get; }
+    public bool InitialIsPrimaryColor { get; private set; }
 
     public bool IsPrimaryColor
     {
@@ -46,6 +46,12 @@ public class Cell : INotifyPropertyChanged
     public void ResetToInitial()
     {
         IsPrimaryColor = InitialIsPrimaryColor;
+    }
+
+    /// <summary>Updates the initial color to match the current color.</summary>
+    public void CaptureCurrentAsInitial()
+    {
+        InitialIsPrimaryColor = IsPrimaryColor;
     }
 
     protected virtual void OnPropertyChanged(string propertyName)

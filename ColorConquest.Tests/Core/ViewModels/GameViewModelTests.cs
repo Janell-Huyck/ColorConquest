@@ -56,19 +56,21 @@ public class GameViewModelTests
     [Fact]
     public void CellTappedCommand_WhenExecutedWithCell_TogglesThatCell()
     {
-        var viewModel = new GameViewModel();
+        var board = new Board(rows: 5, columns: 5);
+        var viewModel = new GameViewModel(board);
         var cell = viewModel.Cells[0];
-        Assert.True(cell.IsPrimaryColor);
+        var initial = cell.IsPrimaryColor;
 
         viewModel.CellTappedCommand.Execute(cell);
 
-        Assert.False(cell.IsPrimaryColor);
+        Assert.NotEqual(initial, cell.IsPrimaryColor);
     }
 
     [Fact]
     public void CellTappedCommand_WhenExecutedWithNull_DoesNotThrow()
     {
-        var viewModel = new GameViewModel();
+        var board = new Board(rows: 5, columns: 5);
+        var viewModel = new GameViewModel(board);
 
         var ex = Record.Exception(() => viewModel.CellTappedCommand.Execute(null));
 
@@ -78,7 +80,8 @@ public class GameViewModelTests
     [Fact]
     public void CellTappedCommand_WhenExecutedTwiceWithSameCell_ReturnsToOriginalState()
     {
-        var viewModel = new GameViewModel();
+        var board = new Board(rows: 5, columns: 5);
+        var viewModel = new GameViewModel(board);
         var tappedCell = viewModel.Cells[0];      // (row 0, col 0)
         var rightNeighbor = viewModel.Cells[1];   // (row 0, col 1)
         var belowNeighbor = viewModel.Cells[5];   // (row 1, col 0)
@@ -100,14 +103,15 @@ public class GameViewModelTests
     [Fact]
     public void ResetCommand_WhenExecuted_RestoresAllCellsToInitialState()
     {
-        var viewModel = new GameViewModel();
+        var board = new Board(rows: 5, columns: 5);
+        var viewModel = new GameViewModel(board);
         viewModel.Cells[0].IsPrimaryColor = false;
         viewModel.Cells[5].IsPrimaryColor = false;
 
         viewModel.ResetCommand.Execute(null);
 
         foreach (var cell in viewModel.Cells)
-            Assert.True(cell.IsPrimaryColor);
+            Assert.Equal(cell.InitialIsPrimaryColor, cell.IsPrimaryColor);
     }
 
     // ---- MoveCount & win detection ----
@@ -121,10 +125,10 @@ public class GameViewModelTests
 
         Assert.Equal(0, viewModel.MoveCount);
 
-        viewModel.CellTappedCommand.Execute(cell);
-        viewModel.CellTappedCommand.Execute(cell);
+        viewModel.CellTappedCommand.Execute(cell);   // first move - wins on 1x1
+        viewModel.CellTappedCommand.Execute(cell);   // ignored after win
 
-        Assert.Equal(2, viewModel.MoveCount);
+        Assert.Equal(1, viewModel.MoveCount);
     }
 
     [Fact]
