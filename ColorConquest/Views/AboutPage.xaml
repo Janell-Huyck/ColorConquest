@@ -5,26 +5,70 @@
              Title="About">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="16">
-            <Label Text="Instructions"
-                   FontSize="22"
+        <VerticalStackLayout Padding="20" Spacing="18">
+            <Label Text="How to Play"
+                   FontSize="26"
                    FontAttributes="Bold" />
-            <Label Text="• Tap a square to toggle its color and the colors of the squares next to it (up, down, left, right)."
-                   LineBreakMode="WordWrap" />
-            <Label Text="• Your goal is to make every square on the grid the same color."
-                   LineBreakMode="WordWrap" />
-            <Label Text="• Use the Reset button to start the current puzzle over."
-                   LineBreakMode="WordWrap" />
 
-            <BoxView HeightRequest="1" Color="{StaticResource Gray200}" Margin="0,8,0,8" />
+            <Border StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="14">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="1) Tap any tile to toggle it and its neighbors (up, down, left, right)."
+                           LineBreakMode="WordWrap" />
+                    <Label Text="2) Keep making moves until every tile is the same color."
+                           LineBreakMode="WordWrap" />
+                    <Label Text="3) Use Reset to retry the current puzzle, or New game for a fresh one."
+                           LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
 
-            <Label Text="Credits"
-                   FontSize="22"
-                   FontAttributes="Bold" />
-            <Label Text="Color Conquest — a quick logic puzzle for short breaks."
-                   LineBreakMode="WordWrap" />
-            <Label Text="Version 1.0"
-                   Opacity="0.7" />
+            <Border BackgroundColor="{AppThemeBinding Light=#F4F0FF, Dark=#2A2340}"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="14">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Need help?"
+                           FontSize="20"
+                           FontAttributes="Bold" />
+                    <Label Text="If you're frustrated or want a sure-fire solving strategy, watch this easy step-by-step guide."
+                           LineBreakMode="WordWrap" />
+                    <Button Text="Watch Solve Guide"
+                            Clicked="OnSolveGuideTapped" />
+                    <Label Text="Opens in your web browser: https://youtu.be/LnYCcUc4FIo?si=f1WIOlg7Z-9hUjY9"
+                           FontSize="12"
+                           Opacity="0.75"
+                           LineBreakMode="CharacterWrap" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="14">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Settings"
+                           FontSize="20"
+                           FontAttributes="Bold" />
+                    <Label Text="From the Settings page, you can customize gameplay by changing board size and choosing whether move count and timer are shown."
+                           LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
+
+            <BoxView HeightRequest="1"
+                     Color="{StaticResource Gray200}"
+                     Margin="0,4,0,2" />
+
+            <VerticalStackLayout Spacing="6">
+                <Label Text="About"
+                       FontSize="20"
+                       FontAttributes="Bold" />
+                <Label Text="Color Conquest is a quick logic puzzle designed for short breaks."
+                       LineBreakMode="WordWrap" />
+                <Label Text="Version 1.0"
+                       Opacity="0.7" />
+            </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>
 
