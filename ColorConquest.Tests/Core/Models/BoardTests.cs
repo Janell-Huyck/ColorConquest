@@ -271,4 +271,77 @@ public class BoardTests
 
         Assert.True(board.AreAllCellsSameColor());
     }
+
+    // ---- ToggleCellAndAdjacent validation ----
+
+    [Theory]
+    [InlineData(-1, 0)]
+    [InlineData(0, -1)]
+    [InlineData(3, 0)]
+    [InlineData(0, 3)]
+    public void ToggleCellAndAdjacent_OutOfRange_ThrowsArgumentOutOfRangeException(int row, int column)
+    {
+        var board = new Board(rows: 3, columns: 3);
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => board.ToggleCellAndAdjacent(row, column));
+    }
+
+    // ---- Scramble & CreateScrambled ----
+
+    [Fact]
+    public void Scramble_WhenMoveCountNegative_ThrowsArgumentOutOfRangeException()
+    {
+        var board = new Board(2, 2);
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => board.Scramble(-1, new Random(0)));
+    }
+
+    [Fact]
+    public void Scramble_WhenRandomIsNull_ThrowsArgumentNullException()
+    {
+        var board = new Board(2, 2);
+
+        Assert.Throws<ArgumentNullException>(() => board.Scramble(1, null!));
+    }
+
+    [Fact]
+    public void Scramble_RestoresMoveCountToValueBeforeScramble()
+    {
+        var board = new Board(2, 2);
+        board.ToggleCellAndAdjacent(0, 0);
+        Assert.Equal(1, board.MoveCount);
+
+        board.Scramble(4, new Random(123));
+
+        Assert.Equal(1, board.MoveCount);
+    }
+
+    [Fact]
+    public void Scramble_ResetToInitial_RestoresCapturedLayoutNotAllPrimary()
+    {
+        var board = new Board(2, 2);
+        var random = new Random(99);
+        board.Scramble(5, random);
+
+        var snapshot = new bool[2, 2];
+        for (var r = 0; r < 2; r++)
+        for (var c = 0; c < 2; c++)
+            snapshot[r, c] = board.GetCell(r, c).IsPrimaryColor;
+
+        board.GetCell(0, 0).Toggle();
+        board.ResetToInitialState();
+
+        for (var r = 0; r < 2; r++)
+        for (var c = 0; c < 2; c++)
+            Assert.Equal(snapshot[r, c], board.GetCell(r, c).IsPrimaryColor);
+    }
+
+    [Fact]
+    public void CreateScrambled_SetsRowAndColumnCount()
+    {
+        var board = Board.CreateScrambled(rows: 4, columns: 3, moveCount: 7, random: new Random(0));
+
+        Assert.Equal(4, board.RowCount);
+        Assert.Equal(3, board.ColumnCount);
+    }
 }

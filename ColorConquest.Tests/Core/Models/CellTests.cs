@@ -172,4 +172,48 @@ public class CellTests
 
         Assert.False(cell.IsPrimaryColor);
     }
+
+    // ---- CaptureCurrentAsInitial ----
+
+    [Fact]
+    public void CaptureCurrentAsInitial_UpdatesInitialToMatchCurrent()
+    {
+        var cell = new GameCell(0, 0, initialIsPrimaryColor: true);
+        cell.Toggle();
+        Assert.False(cell.IsPrimaryColor);
+
+        cell.CaptureCurrentAsInitial();
+        cell.Toggle();
+        Assert.True(cell.IsPrimaryColor);
+
+        cell.ResetToInitial();
+
+        Assert.False(cell.IsPrimaryColor);
+    }
+
+    // ---- NotifyThemeChanged ----
+
+    [Fact]
+    public void NotifyThemeChanged_RaisesPropertyChanged_ForIsPrimaryColor()
+    {
+        var cell = new GameCell(0, 0);
+        PropertyChangedEventArgs? captured = null;
+        cell.PropertyChanged += (_, e) => captured = e;
+
+        cell.NotifyThemeChanged();
+
+        Assert.NotNull(captured);
+        Assert.Equal(nameof(GameCell.IsPrimaryColor), captured!.PropertyName);
+    }
+
+    [Fact]
+    public void NotifyThemeChanged_DoesNotChangeIsPrimaryColor()
+    {
+        var cell = new GameCell(0, 0, initialIsPrimaryColor: false);
+        Assert.False(cell.IsPrimaryColor);
+
+        cell.NotifyThemeChanged();
+
+        Assert.False(cell.IsPrimaryColor);
+    }
 }

@@ -1,7 +1,10 @@
+using System.ComponentModel;
+using System.Threading;
 using ColorConquest.Core;
 using ColorConquest.Core.Models;
 using ColorConquest.Core.ViewModels;
 using Xunit;
+using GameCell = ColorConquest.Core.Models.Cell;
 
 namespace ColorConquest.Tests.Core.ViewModels;
 
@@ -114,6 +117,60 @@ public class GameViewModelTests
             Assert.Equal(cell.InitialIsPrimaryColor, cell.IsPrimaryColor);
     }
 
+    [Fact]
+    public void ResetCommand_AfterWin_ClearsIsWon()
+    {
+        var board = new Board(rows: 1, columns: 1);
+        var viewModel = new GameViewModel(board);
+        viewModel.CellTappedCommand.Execute(viewModel.Cells[0]);
+        Assert.True(viewModel.IsWon);
+
+        viewModel.ResetCommand.Execute(null);
+
+        Assert.False(viewModel.IsWon);
+    }
+
+    [Fact]
+    public void ResetCommand_AfterMoves_ResetsMoveCount()
+    {
+        var board = new Board(rows: 2, columns: 2);
+        var viewModel = new GameViewModel(board);
+        viewModel.CellTappedCommand.Execute(viewModel.Cells[0]);
+        Assert.Equal(1, viewModel.MoveCount);
+
+        viewModel.ResetCommand.Execute(null);
+
+        Assert.Equal(0, viewModel.MoveCount);
+    }
+
+    // ---- New game ----
+
+    [Fact]
+    public void NewGameCommand_ResetsMoveCount()
+    {
+        var board = new Board(rows: 2, columns: 2);
+        var viewModel = new GameViewModel(board);
+        viewModel.CellTappedCommand.Execute(viewModel.Cells[0]);
+        Assert.Equal(1, viewModel.MoveCount);
+
+        viewModel.NewGameCommand.Execute(null);
+
+        Assert.Equal(0, viewModel.MoveCount);
+    }
+
+    [Fact]
+    public void NewGameCommand_AfterWin_ClearsIsWon()
+    {
+        var board = new Board(rows: 1, columns: 1);
+        var viewModel = new GameViewModel(board);
+        viewModel.CellTappedCommand.Execute(viewModel.Cells[0]);
+        Assert.True(viewModel.IsWon);
+
+        viewModel.NewGameCommand.Execute(null);
+
+        Assert.False(viewModel.IsWon);
+    }
+
     // ---- MoveCount & win detection ----
 
     [Fact]
@@ -221,5 +278,40 @@ public class GameViewModelTests
         viewModel.RefreshElapsedDisplay();
 
         Assert.Equal("0:00", viewModel.ElapsedDisplay);
+    }
+
+    [Fact]
+    public void ElapsedDisplay_DoesNotChangeAfterWin_UntilNextRefreshAfterDelay()
+    {
+        var board = new Board(rows: 1, columns: 1);
+        var viewModel = new GameViewModel(board);
+        viewModel.CellTappedCommand.Execute(viewModel.Cells[0]);
+        Assert.True(viewModel.IsWon);
+        viewModel.RefreshElapsedDisplay();
+        var first = viewModel.ElapsedDisplay;
+        Thread.Sleep(60);
+        viewModel.RefreshElapsedDisplay();
+
+        Assert.Equal(first, viewModel.ElapsedDisplay);
+    }
+
+    [Fact]
+    public void RefreshThemeDependentVisuals_NotifiesAllCells()
+    {
+        var board = new Board(rows: 2, columns: 2);
+        var viewModel = new GameViewModel(board);
+        var raised = 0;
+        foreach (var cell in viewModel.Cells)
+            cell.PropertyChanged += OnCellPropertyChanged;
+
+        viewModel.RefreshThemeDependentVisuals();
+
+        Assert.Equal(4, raised);
+
+        void OnCellPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(GameCell.IsPrimaryColor))
+                raised++;
+        }
     }
 }
