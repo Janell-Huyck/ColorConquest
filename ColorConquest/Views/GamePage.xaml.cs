@@ -1,25 +1,56 @@
 using ColorConquest.Core.ViewModels;
+using ColorConquest.Services;
 
 namespace ColorConquest.Views;
 
 public partial class GamePage : ContentPage
 {
+    private readonly GameViewModel _viewModel;
+
     public GamePage()
     {
         InitializeComponent();
-        var viewModel = new GameViewModel();
-        BindingContext = viewModel;
+        _viewModel = new GameViewModel();
+        BindingContext = _viewModel;
         // Grid layout: same number of columns as the board, with gaps between tiles
         const int cellSize = 48;
         const int spacing = 4;
-        var gridLayout = new GridItemsLayout(viewModel.ColumnCount, ItemsLayoutOrientation.Vertical)
+        var gridLayout = new GridItemsLayout(_viewModel.ColumnCount, ItemsLayoutOrientation.Vertical)
         {
             VerticalItemSpacing = spacing,
             HorizontalItemSpacing = spacing
         };
         GameGrid.ItemsLayout = gridLayout;
         // Fixed grid size so cells stay 48×48 and don't shrink/expand with the window
-        GameGrid.WidthRequest = viewModel.ColumnCount * cellSize + (viewModel.ColumnCount - 1) * spacing;
-        GameGrid.HeightRequest = viewModel.RowCount * cellSize + (viewModel.RowCount - 1) * spacing;
+        GameGrid.WidthRequest = _viewModel.ColumnCount * cellSize + (_viewModel.ColumnCount - 1) * spacing;
+        GameGrid.HeightRequest = _viewModel.RowCount * cellSize + (_viewModel.RowCount - 1) * spacing;
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        _viewModel.SetShowMoveCount(GameDisplayPreferences.GetShowMoveCount());
+        _viewModel.RefreshThemeDependentVisuals();
+        if (Application.Current is not null)
+            Application.Current.RequestedThemeChanged += OnRequestedThemeChanged;
+        TileColorPreferences.ColorsChanged += OnColorsChanged;
+    }
+
+    protected override void OnDisappearing()
+    {
+        if (Application.Current is not null)
+            Application.Current.RequestedThemeChanged -= OnRequestedThemeChanged;
+        TileColorPreferences.ColorsChanged -= OnColorsChanged;
+        base.OnDisappearing();
+    }
+
+    private void OnRequestedThemeChanged(object? sender, AppThemeChangedEventArgs e)
+    {
+        _viewModel.RefreshThemeDependentVisuals();
+    }
+
+    private void OnColorsChanged(object? sender, EventArgs e)
+    {
+        _viewModel.RefreshThemeDependentVisuals();
     }
 }

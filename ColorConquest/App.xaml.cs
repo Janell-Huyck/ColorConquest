@@ -1,3 +1,5 @@
+using ColorConquest.Services;
+
 namespace ColorConquest
 {
     public partial class App : Application
@@ -5,8 +7,10 @@ namespace ColorConquest
         public App()
         {
             InitializeComponent();
+            UserAppTheme = ThemePreferences.GetSavedTheme();
 
             MainPage = new AppShell();
+            ThemeChrome.ApplyToApplication();
         }
     }
 }

@@ -151,4 +151,22 @@ public class GameViewModelTests
 
         Assert.True(viewModel.IsWon);
     }
+
+    [Fact]
+    public void ShowMoveCount_DefaultsTrue()
+    {
+        var viewModel = new GameViewModel();
+
+        Assert.True(viewModel.ShowMoveCount);
+    }
+
+    [Fact]
+    public void SetShowMoveCount_UpdatesShowMoveCount()
+    {
+        var viewModel = new GameViewModel();
+
+        viewModel.SetShowMoveCount(false);
+
+        Assert.False(viewModel.ShowMoveCount);
+    }
 }

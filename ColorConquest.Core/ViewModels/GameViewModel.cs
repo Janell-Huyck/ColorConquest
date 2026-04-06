@@ -14,6 +14,7 @@ public class GameViewModel : INotifyPropertyChanged
 {
     private Board _board;
     private bool _hasGameStarted;
+    private bool _showMoveCount = true;
 
     public GameViewModel(Board? board = null)
     {
@@ -38,6 +39,17 @@ public class GameViewModel : INotifyPropertyChanged
     public int RowCount => _board.RowCount;
     public int ColumnCount => _board.ColumnCount;
     public int MoveCount => _board.MoveCount;
+    public bool ShowMoveCount
+    {
+        get => _showMoveCount;
+        private set
+        {
+            if (_showMoveCount == value) return;
+            _showMoveCount = value;
+            OnPropertyChanged(nameof(ShowMoveCount));
+        }
+    }
+
     public bool IsWon { get; private set; }
     public ICommand CellTappedCommand { get; }
     public ICommand ResetCommand { get; }
@@ -93,6 +105,17 @@ public class GameViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(RowCount));
         OnPropertyChanged(nameof(ColumnCount));
         OnPropertyChanged(nameof(MoveCount));
+    }
+
+    public void RefreshThemeDependentVisuals()
+    {
+        foreach (var cell in Cells)
+            cell.NotifyThemeChanged();
+    }
+
+    public void SetShowMoveCount(bool show)
+    {
+        ShowMoveCount = show;
     }
 
     private void OnPropertyChanged(string propertyName)

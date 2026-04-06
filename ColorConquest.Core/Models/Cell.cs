@@ -54,6 +54,15 @@ public class Cell : INotifyPropertyChanged
         InitialIsPrimaryColor = IsPrimaryColor;
     }
 
+    /// <summary>
+    /// Raises a property-changed event for IsPrimaryColor without changing state.
+    /// Useful when visual color mapping changes due to app theme changes.
+    /// </summary>
+    public void NotifyThemeChanged()
+    {
+        OnPropertyChanged(nameof(IsPrimaryColor));
+    }
+
     protected virtual void OnPropertyChanged(string propertyName)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

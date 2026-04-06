@@ -4,14 +4,185 @@
              x:Class="ColorConquest.Views.SettingsPage"
              Title="Settings">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="16">
-            <Label Text="Settings"
-                   FontSize="24"
-                   HorizontalOptions="Center" />
-            <Label Text="Difficulty, timer, and theme options will go here."
-                   HorizontalTextAlignment="Center" />
-        </VerticalStackLayout>
-    </ScrollView>
+    <Grid x:Name="SettingsRootGrid">
+        <ScrollView x:Name="SettingsScroll">
+            <VerticalStackLayout Padding="20" Spacing="16">
+                <Label x:Name="SettingsPageTitleLabel"
+                       Text="Settings"
+                       FontSize="24"
+                       HorizontalOptions="Center" />
+
+                <Border x:Name="AppearanceSectionBorder"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="14">
+                    <VerticalStackLayout Spacing="12">
+                        <Label x:Name="AppearanceHeaderLabel"
+                               Text="Appearance"
+                               FontSize="20"
+                               FontAttributes="Bold" />
+
+                        <Grid ColumnDefinitions="*,Auto"
+                              VerticalOptions="Center">
+                            <VerticalStackLayout Spacing="2">
+                                <Label x:Name="DarkModeTitleLabel"
+                                       Text="Dark mode"
+                                       FontSize="16"
+                                       FontAttributes="Bold" />
+                                <Label x:Name="DarkModeSubtitleLabel"
+                                       Text="Turn on for dark colors; turn off for light."
+                                       LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+
+                            <Switch x:Name="ThemeSwitch"
+                                    Grid.Column="1"
+                                    VerticalOptions="Center"
+                                    Toggled="OnThemeToggled" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,Auto"
+                              VerticalOptions="Center">
+                            <VerticalStackLayout Spacing="2">
+                                <Label x:Name="ShowMoveTitleLabel"
+                                       Text="Show move count"
+                                       FontSize="16"
+                                       FontAttributes="Bold" />
+                                <Label x:Name="ShowMoveSubtitleLabel"
+                                       Text="Turn off to hide moves on the Game screen."
+                                       LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+
+                            <Switch x:Name="ShowMoveCountSwitch"
+                                    Grid.Column="1"
+                                    VerticalOptions="Center"
+                                    Toggled="OnShowMoveCountToggled" />
+                        </Grid>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label x:Name="TileColorsTitleLabel"
+                                   Text="Tile colors"
+                                   FontSize="16"
+                                   FontAttributes="Bold" />
+                            <Label x:Name="TileColorsSubtitleLabel"
+                                   Text="Tap a row to open the palette (6 dark + 6 light)." />
+
+                            <Label x:Name="PrimarySectionLabel"
+                                   Text="Primary tile"
+                                   FontSize="13"
+                                   FontAttributes="Bold" />
+                            <Grid ColumnDefinitions="Auto,*"
+                                  ColumnSpacing="10"
+                                  VerticalOptions="Center">
+                                <Border x:Name="PrimaryTileStrokeBorder"
+                                        WidthRequest="40"
+                                        HeightRequest="40"
+                                        StrokeThickness="1"
+                                        VerticalOptions="Center">
+                                    <BoxView x:Name="PrimaryTilePreview" />
+                                </Border>
+                                <Border x:Name="PrimaryPickerRowBorder"
+                                        Grid.Column="1"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 8"
+                                        Padding="12,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnPrimaryPaletteRowTapped" />
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label x:Name="PrimaryColorNameLabel"
+                                               Text="—"
+                                               VerticalOptions="Center"
+                                               LineBreakMode="TailTruncation" />
+                                        <Label x:Name="PrimaryChevronLabel"
+                                               Grid.Column="1"
+                                               Text="▼"
+                                               FontSize="14"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+
+                            <Label x:Name="SecondarySectionLabel"
+                                   Text="Secondary tile"
+                                   FontSize="13"
+                                   FontAttributes="Bold" />
+                            <Grid ColumnDefinitions="Auto,*"
+                                  ColumnSpacing="10"
+                                  VerticalOptions="Center">
+                                <Border x:Name="SecondaryTileStrokeBorder"
+                                        WidthRequest="40"
+                                        HeightRequest="40"
+                                        StrokeThickness="1"
+                                        VerticalOptions="Center">
+                                    <BoxView x:Name="SecondaryTilePreview" />
+                                </Border>
+                                <Border x:Name="SecondaryPickerRowBorder"
+                                        Grid.Column="1"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 8"
+                                        Padding="12,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnSecondaryPaletteRowTapped" />
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label x:Name="SecondaryColorNameLabel"
+                                               Text="—"
+                                               VerticalOptions="Center"
+                                               LineBreakMode="TailTruncation" />
+                                        <Label x:Name="SecondaryChevronLabel"
+                                               Grid.Column="1"
+                                               Text="▼"
+                                               FontSize="14"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label x:Name="FooterHintLabel"
+                       Text="More settings (board size and timer) coming soon."
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Modal color palette (Picker is unreliable on some Mac Catalyst builds). -->
+        <!-- Scrim is the overlay Grid's BackgroundColor — BoxView scrim often fails to paint/fill on Mac Catalyst. -->
+        <Grid x:Name="ColorPaletteOverlay"
+              IsVisible="False"
+              InputTransparent="False"
+              HorizontalOptions="Fill"
+              VerticalOptions="Fill">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnColorPaletteBackdropTapped" />
+            </Grid.GestureRecognizers>
+
+            <Border x:Name="PaletteModalBorder"
+                    Margin="24"
+                    Padding="16"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center"
+                    MaximumWidthRequest="420">
+                <VerticalStackLayout Spacing="12">
+                    <Label x:Name="PaletteTitleLabel"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           Text="Choose a color" />
+                    <Label x:Name="PaletteInstructionLabel"
+                           Text="Tap a swatch. Dark colors are in the first row; light colors follow."
+                           FontSize="13"
+                           LineBreakMode="WordWrap" />
+                    <Grid x:Name="PaletteSwatchesGrid"
+                          ColumnSpacing="8"
+                          RowSpacing="8" />
+                    <Button Text="Cancel"
+                            Clicked="OnColorPaletteCancelClicked" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
 
 </ContentPage>

@@ -1,10 +1,237 @@
-namespace ColorConquest.Views
+using ColorConquest.Services;
+using Microsoft.Maui.Controls.Shapes;
+
+namespace ColorConquest.Views;
+
+public partial class SettingsPage : ContentPage
 {
-    public partial class SettingsPage : ContentPage
+    private enum PaletteTarget
     {
-        public SettingsPage()
+        None,
+        Primary,
+        Secondary
+    }
+
+    private bool _suppressThemeToggle;
+    private bool _suppressMoveCountToggle;
+    private IReadOnlyList<TileColorOption> _availableColors = Array.Empty<TileColorOption>();
+    private PaletteTarget _activePaletteTarget = PaletteTarget.None;
+
+    public SettingsPage()
+    {
+        InitializeComponent();
+        _suppressThemeToggle = true;
+        ThemeSwitch.IsToggled = ThemePreferences.GetSavedTheme() == AppTheme.Dark;
+        _suppressThemeToggle = false;
+
+        _suppressMoveCountToggle = true;
+        ShowMoveCountSwitch.IsToggled = GameDisplayPreferences.GetShowMoveCount();
+        _suppressMoveCountToggle = false;
+
+        _availableColors = TileColorPreferences.GetAvailableColors();
+        ApplyForcedThemeToUi();
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        ApplyForcedThemeToUi();
+        if (Application.Current is not null)
+            Application.Current.RequestedThemeChanged += OnAppRequestedThemeChanged;
+    }
+
+    protected override void OnDisappearing()
+    {
+        if (Application.Current is not null)
+            Application.Current.RequestedThemeChanged -= OnAppRequestedThemeChanged;
+        base.OnDisappearing();
+    }
+
+    private void OnAppRequestedThemeChanged(object? sender, AppThemeChangedEventArgs e)
+    {
+        ThemeChrome.ApplyToApplication();
+        ApplyForcedThemeToUi();
+    }
+
+    private void ApplyForcedThemeToUi()
+    {
+        ThemeChrome.ApplyToApplication();
+        var dark = ThemeChrome.IsDarkFromPreferences();
+
+        var pageBg = dark ? Color.FromArgb("#1F1F1F") : Colors.White;
+        var cardBg = dark ? Color.FromArgb("#1F1F1F") : Colors.White;
+        var stroke = dark ? Color.FromArgb("#404040") : Color.FromArgb("#ACACAC");
+        // Light: semi-transparent black over white reads as gray. Dark: darker veil over dark page.
+        var scrim = dark ? Color.FromArgb("#CC000000") : Color.FromArgb("#66000000");
+        var headline = dark ? Colors.White : Colors.Black;
+        var muted = dark ? Color.FromArgb("#A3A3A3") : Color.FromArgb("#6E6E6E");
+        var chevron = dark ? Color.FromArgb("#B0B0B0") : Color.FromArgb("#555555");
+
+        BackgroundColor = pageBg;
+        SettingsRootGrid.BackgroundColor = pageBg;
+        SettingsScroll.BackgroundColor = pageBg;
+
+        AppearanceSectionBorder.BackgroundColor = cardBg;
+        AppearanceSectionBorder.Stroke = stroke;
+
+        PrimaryTileStrokeBorder.Stroke = stroke;
+        PrimaryPickerRowBorder.BackgroundColor = cardBg;
+        PrimaryPickerRowBorder.Stroke = stroke;
+        SecondaryTileStrokeBorder.Stroke = stroke;
+        SecondaryPickerRowBorder.BackgroundColor = cardBg;
+        SecondaryPickerRowBorder.Stroke = stroke;
+
+        ColorPaletteOverlay.BackgroundColor = scrim;
+        PaletteModalBorder.BackgroundColor = cardBg;
+        PaletteModalBorder.Stroke = stroke;
+
+        PaletteTitleLabel.TextColor = headline;
+        PaletteInstructionLabel.TextColor = muted;
+
+        SettingsPageTitleLabel.TextColor = headline;
+        AppearanceHeaderLabel.TextColor = headline;
+        DarkModeTitleLabel.TextColor = headline;
+        DarkModeSubtitleLabel.TextColor = muted;
+        ShowMoveTitleLabel.TextColor = headline;
+        ShowMoveSubtitleLabel.TextColor = muted;
+        TileColorsTitleLabel.TextColor = headline;
+        TileColorsSubtitleLabel.TextColor = muted;
+        PrimarySectionLabel.TextColor = headline;
+        SecondarySectionLabel.TextColor = headline;
+        PrimaryColorNameLabel.TextColor = headline;
+        SecondaryColorNameLabel.TextColor = headline;
+        PrimaryChevronLabel.TextColor = chevron;
+        SecondaryChevronLabel.TextColor = chevron;
+        FooterHintLabel.TextColor = muted;
+
+        BuildPaletteSwatches();
+        UpdateColorLabelsAndPreviews();
+    }
+
+    private void OnThemeToggled(object? sender, ToggledEventArgs e)
+    {
+        if (_suppressThemeToggle)
+            return;
+
+        var selectedTheme = e.Value ? AppTheme.Dark : AppTheme.Light;
+        ThemePreferences.SaveTheme(selectedTheme);
+
+        if (Application.Current is not null)
+            Application.Current.UserAppTheme = selectedTheme;
+
+        ApplyForcedThemeToUi();
+    }
+
+    private void OnShowMoveCountToggled(object? sender, ToggledEventArgs e)
+    {
+        if (_suppressMoveCountToggle)
+            return;
+
+        GameDisplayPreferences.SetShowMoveCount(e.Value);
+    }
+
+    private void OnPrimaryPaletteRowTapped(object? sender, TappedEventArgs e)
+    {
+        OpenPalette(PaletteTarget.Primary);
+    }
+
+    private void OnSecondaryPaletteRowTapped(object? sender, TappedEventArgs e)
+    {
+        OpenPalette(PaletteTarget.Secondary);
+    }
+
+    private void OpenPalette(PaletteTarget target)
+    {
+        _activePaletteTarget = target;
+        PaletteTitleLabel.Text = target == PaletteTarget.Primary
+            ? "Choose primary tile color"
+            : "Choose secondary tile color";
+        ApplyForcedThemeToUi();
+        ColorPaletteOverlay.IsVisible = true;
+    }
+
+    private void ClosePalette()
+    {
+        ColorPaletteOverlay.IsVisible = false;
+        _activePaletteTarget = PaletteTarget.None;
+    }
+
+    private void OnColorPaletteBackdropTapped(object? sender, TappedEventArgs e)
+    {
+        ClosePalette();
+    }
+
+    private void OnColorPaletteCancelClicked(object? sender, EventArgs e)
+    {
+        ClosePalette();
+    }
+
+    private void OnPaletteSwatchTapped(TileColorOption option)
+    {
+        switch (_activePaletteTarget)
         {
-            InitializeComponent();
+            case PaletteTarget.Primary:
+                TileColorPreferences.SetPrimaryColorKey(option.Key);
+                break;
+            case PaletteTarget.Secondary:
+                TileColorPreferences.SetSecondaryColorKey(option.Key);
+                break;
+            default:
+                return;
+        }
+
+        UpdateColorLabelsAndPreviews();
+        ClosePalette();
+    }
+
+    private void UpdateColorLabelsAndPreviews()
+    {
+        var primary = TileColorPreferences.GetPrimaryColor();
+        var secondary = TileColorPreferences.GetSecondaryColor();
+        PrimaryTilePreview.Color = Color.FromArgb(primary.Hex);
+        SecondaryTilePreview.Color = Color.FromArgb(secondary.Hex);
+        PrimaryColorNameLabel.Text = primary.Name;
+        SecondaryColorNameLabel.Text = secondary.Name;
+    }
+
+    private void BuildPaletteSwatches()
+    {
+        PaletteSwatchesGrid.Children.Clear();
+        PaletteSwatchesGrid.ColumnDefinitions.Clear();
+        PaletteSwatchesGrid.RowDefinitions.Clear();
+
+        const int columns = 4;
+        for (var c = 0; c < columns; c++)
+            PaletteSwatchesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+
+        var rowCount = (int)Math.Ceiling(_availableColors.Count / (double)columns);
+        for (var r = 0; r < rowCount; r++)
+            PaletteSwatchesGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+        var swatchStroke = ThemeChrome.IsDarkFromPreferences() ? Color.FromArgb("#555555") : Color.FromArgb("#ACACAC");
+
+        for (var i = 0; i < _availableColors.Count; i++)
+        {
+            var option = _availableColors[i];
+            var row = i / columns;
+            var col = i % columns;
+
+            var border = new Border
+            {
+                HeightRequest = 52,
+                StrokeThickness = 1,
+                Stroke = swatchStroke,
+                StrokeShape = new RoundRectangle { CornerRadius = 10 },
+                BackgroundColor = Color.FromArgb(option.Hex)
+            };
+
+            var tap = new TapGestureRecognizer();
+            tap.Tapped += (_, _) => OnPaletteSwatchTapped(option);
+            border.GestureRecognizers.Add(tap);
+
+            Grid.SetRow(border, row);
+            Grid.SetColumn(border, col);
+            PaletteSwatchesGrid.Children.Add(border);
         }
     }
 }

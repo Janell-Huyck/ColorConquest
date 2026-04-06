@@ -6,20 +6,34 @@
     xmlns:views="clr-namespace:ColorConquest.Views"
     Title="Color Conquest">
 
+    <Shell.ItemTemplate>
+        <DataTemplate>
+            <Grid Padding="16,10">
+                <Label Text="{Binding Title}"
+                       FontSize="18"
+                       TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+            </Grid>
+        </DataTemplate>
+    </Shell.ItemTemplate>
+
     <FlyoutItem Title="Home" Route="HomePage" FlyoutDisplayOptions="AsMultipleItems">
         <ShellContent
+            Title="Home"
             ContentTemplate="{DataTemplate views:HomePage}" />
     </FlyoutItem>
     <FlyoutItem Title="Game" Route="GamePage" FlyoutDisplayOptions="AsMultipleItems">
         <ShellContent
+            Title="Game"
             ContentTemplate="{DataTemplate views:GamePage}" />
     </FlyoutItem>
     <FlyoutItem Title="Settings" Route="SettingsPage" FlyoutDisplayOptions="AsMultipleItems">
         <ShellContent
+            Title="Settings"
             ContentTemplate="{DataTemplate views:SettingsPage}" />
     </FlyoutItem>
     <FlyoutItem Title="About" Route="AboutPage" FlyoutDisplayOptions="AsMultipleItems">
         <ShellContent
+            Title="About"
             ContentTemplate="{DataTemplate views:AboutPage}" />
     </FlyoutItem>
 

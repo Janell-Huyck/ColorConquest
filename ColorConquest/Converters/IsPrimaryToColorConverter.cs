@@ -1,4 +1,5 @@
 using System.Globalization;
+using ColorConquest.Services;
 
 namespace ColorConquest.Converters;
 
@@ -12,12 +13,13 @@ public class IsPrimaryToColorConverter : IValueConverter
     {
         if (value is not bool isPrimary)
             return Colors.Gray;
-        var key = isPrimary ? "Primary" : "Secondary";
-        if (Application.Current?.Resources.TryGetValue(key, out var resource) == true && resource is Color color)
-            return color;
-        return isPrimary ? Color.FromArgb("#512BD4") : Color.FromArgb("#DFD8F7");
+
+        return isPrimary
+            ? Color.FromArgb(TileColorPreferences.GetPrimaryColor().Hex)
+            : Color.FromArgb(TileColorPreferences.GetSecondaryColor().Hex);
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotImplementedException();
+
 }
