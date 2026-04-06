@@ -14,6 +14,7 @@ public partial class SettingsPage : ContentPage
 
     private bool _suppressThemeToggle;
     private bool _suppressMoveCountToggle;
+    private bool _suppressGameTimerToggle;
     private IReadOnlyList<TileColorOption> _availableColors = Array.Empty<TileColorOption>();
     private PaletteTarget _activePaletteTarget = PaletteTarget.None;
 
@@ -27,6 +28,10 @@ public partial class SettingsPage : ContentPage
         _suppressMoveCountToggle = true;
         ShowMoveCountSwitch.IsToggled = GameDisplayPreferences.GetShowMoveCount();
         _suppressMoveCountToggle = false;
+
+        _suppressGameTimerToggle = true;
+        ShowGameTimerSwitch.IsToggled = GameDisplayPreferences.GetShowGameTimer();
+        _suppressGameTimerToggle = false;
 
         _availableColors = TileColorPreferences.GetAvailableColors();
         ApplyForcedThemeToUi();
@@ -47,19 +52,15 @@ public partial class SettingsPage : ContentPage
         base.OnDisappearing();
     }
 
-    private void OnAppRequestedThemeChanged(object? sender, AppThemeChangedEventArgs e)
-    {
-        ThemeChrome.ApplyToApplication();
+    private void OnAppRequestedThemeChanged(object? sender, AppThemeChangedEventArgs e) =>
         ApplyForcedThemeToUi();
-    }
 
     private void ApplyForcedThemeToUi()
     {
         ThemeChrome.ApplyToApplication();
         var dark = ThemeChrome.IsDarkFromPreferences();
 
-        var pageBg = dark ? Color.FromArgb("#1F1F1F") : Colors.White;
-        var cardBg = dark ? Color.FromArgb("#1F1F1F") : Colors.White;
+        var surfaceBg = ThemeChrome.Surface(dark);
         var stroke = dark ? Color.FromArgb("#404040") : Color.FromArgb("#ACACAC");
         // Light: semi-transparent black over white reads as gray. Dark: darker veil over dark page.
         var scrim = dark ? Color.FromArgb("#CC000000") : Color.FromArgb("#66000000");
@@ -67,22 +68,22 @@ public partial class SettingsPage : ContentPage
         var muted = dark ? Color.FromArgb("#A3A3A3") : Color.FromArgb("#6E6E6E");
         var chevron = dark ? Color.FromArgb("#B0B0B0") : Color.FromArgb("#555555");
 
-        BackgroundColor = pageBg;
-        SettingsRootGrid.BackgroundColor = pageBg;
-        SettingsScroll.BackgroundColor = pageBg;
+        BackgroundColor = surfaceBg;
+        SettingsRootGrid.BackgroundColor = surfaceBg;
+        SettingsScroll.BackgroundColor = surfaceBg;
 
-        AppearanceSectionBorder.BackgroundColor = cardBg;
+        AppearanceSectionBorder.BackgroundColor = surfaceBg;
         AppearanceSectionBorder.Stroke = stroke;
 
         PrimaryTileStrokeBorder.Stroke = stroke;
-        PrimaryPickerRowBorder.BackgroundColor = cardBg;
+        PrimaryPickerRowBorder.BackgroundColor = surfaceBg;
         PrimaryPickerRowBorder.Stroke = stroke;
         SecondaryTileStrokeBorder.Stroke = stroke;
-        SecondaryPickerRowBorder.BackgroundColor = cardBg;
+        SecondaryPickerRowBorder.BackgroundColor = surfaceBg;
         SecondaryPickerRowBorder.Stroke = stroke;
 
         ColorPaletteOverlay.BackgroundColor = scrim;
-        PaletteModalBorder.BackgroundColor = cardBg;
+        PaletteModalBorder.BackgroundColor = surfaceBg;
         PaletteModalBorder.Stroke = stroke;
 
         PaletteTitleLabel.TextColor = headline;
@@ -94,6 +95,8 @@ public partial class SettingsPage : ContentPage
         DarkModeSubtitleLabel.TextColor = muted;
         ShowMoveTitleLabel.TextColor = headline;
         ShowMoveSubtitleLabel.TextColor = muted;
+        ShowGameTimerTitleLabel.TextColor = headline;
+        ShowGameTimerSubtitleLabel.TextColor = muted;
         TileColorsTitleLabel.TextColor = headline;
         TileColorsSubtitleLabel.TextColor = muted;
         PrimarySectionLabel.TextColor = headline;
@@ -104,7 +107,10 @@ public partial class SettingsPage : ContentPage
         SecondaryChevronLabel.TextColor = chevron;
         FooterHintLabel.TextColor = muted;
 
-        BuildPaletteSwatches();
+        // Always rebuild: Mac Catalyst can leave stale native views (non-zero child count but nothing
+        // visible) after theme changes or hiding the overlay; skipping rebuild was unreliable.
+        BuildPaletteSwatches(dark);
+
         UpdateColorLabelsAndPreviews();
     }
 
@@ -128,6 +134,14 @@ public partial class SettingsPage : ContentPage
             return;
 
         GameDisplayPreferences.SetShowMoveCount(e.Value);
+    }
+
+    private void OnShowGameTimerToggled(object? sender, ToggledEventArgs e)
+    {
+        if (_suppressGameTimerToggle)
+            return;
+
+        GameDisplayPreferences.SetShowGameTimer(e.Value);
     }
 
     private void OnPrimaryPaletteRowTapped(object? sender, TappedEventArgs e)
@@ -194,7 +208,7 @@ public partial class SettingsPage : ContentPage
         SecondaryColorNameLabel.Text = secondary.Name;
     }
 
-    private void BuildPaletteSwatches()
+    private void BuildPaletteSwatches(bool dark)
     {
         PaletteSwatchesGrid.Children.Clear();
         PaletteSwatchesGrid.ColumnDefinitions.Clear();
@@ -208,7 +222,7 @@ public partial class SettingsPage : ContentPage
         for (var r = 0; r < rowCount; r++)
             PaletteSwatchesGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-        var swatchStroke = ThemeChrome.IsDarkFromPreferences() ? Color.FromArgb("#555555") : Color.FromArgb("#ACACAC");
+        var swatchStroke = dark ? Color.FromArgb("#555555") : Color.FromArgb("#ACACAC");
 
         for (var i = 0; i < _availableColors.Count; i++)
         {

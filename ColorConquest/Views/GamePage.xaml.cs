@@ -6,6 +6,7 @@ namespace ColorConquest.Views;
 public partial class GamePage : ContentPage
 {
     private readonly GameViewModel _viewModel;
+    private bool _elapsedTickerActive;
 
     public GamePage()
     {
@@ -30,18 +31,33 @@ public partial class GamePage : ContentPage
     {
         base.OnAppearing();
         _viewModel.SetShowMoveCount(GameDisplayPreferences.GetShowMoveCount());
+        _viewModel.SetShowGameTimer(GameDisplayPreferences.GetShowGameTimer());
+        _viewModel.RefreshElapsedDisplay();
         _viewModel.RefreshThemeDependentVisuals();
         if (Application.Current is not null)
             Application.Current.RequestedThemeChanged += OnRequestedThemeChanged;
         TileColorPreferences.ColorsChanged += OnColorsChanged;
+
+        _elapsedTickerActive = true;
+        Dispatcher.StartTimer(TimeSpan.FromSeconds(1), ElapsedTickerTick);
     }
 
     protected override void OnDisappearing()
     {
+        _elapsedTickerActive = false;
         if (Application.Current is not null)
             Application.Current.RequestedThemeChanged -= OnRequestedThemeChanged;
         TileColorPreferences.ColorsChanged -= OnColorsChanged;
         base.OnDisappearing();
+    }
+
+    private bool ElapsedTickerTick()
+    {
+        if (!_elapsedTickerActive)
+            return false;
+
+        _viewModel.RefreshElapsedDisplay();
+        return true;
     }
 
     private void OnRequestedThemeChanged(object? sender, AppThemeChangedEventArgs e)

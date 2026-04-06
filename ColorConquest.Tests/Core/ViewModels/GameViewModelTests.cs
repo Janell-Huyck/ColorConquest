@@ -169,4 +169,57 @@ public class GameViewModelTests
 
         Assert.False(viewModel.ShowMoveCount);
     }
+
+    // ---- Game timer ----
+
+    [Fact]
+    public void ShowGameTimer_DefaultsTrue()
+    {
+        var viewModel = new GameViewModel();
+
+        Assert.True(viewModel.ShowGameTimer);
+    }
+
+    [Fact]
+    public void SetShowGameTimer_UpdatesShowGameTimer()
+    {
+        var viewModel = new GameViewModel();
+
+        viewModel.SetShowGameTimer(false);
+
+        Assert.False(viewModel.ShowGameTimer);
+    }
+
+    [Fact]
+    public void ElapsedDisplay_IsZeroAfterRefreshInitially()
+    {
+        var viewModel = new GameViewModel();
+        viewModel.RefreshElapsedDisplay();
+
+        Assert.Equal("0:00", viewModel.ElapsedDisplay);
+    }
+
+    [Fact]
+    public void ResetCommand_ResetsElapsedDisplay()
+    {
+        var board = new Board(rows: 2, columns: 2);
+        var viewModel = new GameViewModel(board);
+        viewModel.CellTappedCommand.Execute(viewModel.Cells[0]);
+        viewModel.ResetCommand.Execute(null);
+        viewModel.RefreshElapsedDisplay();
+
+        Assert.Equal("0:00", viewModel.ElapsedDisplay);
+    }
+
+    [Fact]
+    public void NewGameCommand_ResetsElapsedDisplay()
+    {
+        var board = new Board(rows: 2, columns: 2);
+        var viewModel = new GameViewModel(board);
+        viewModel.CellTappedCommand.Execute(viewModel.Cells[0]);
+        viewModel.NewGameCommand.Execute(null);
+        viewModel.RefreshElapsedDisplay();
+
+        Assert.Equal("0:00", viewModel.ElapsedDisplay);
+    }
 }

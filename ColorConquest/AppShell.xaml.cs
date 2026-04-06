@@ -1,5 +1,3 @@
-using ColorConquest.Services;
-
 namespace ColorConquest
 {
     public partial class AppShell : Shell
@@ -7,7 +5,7 @@ namespace ColorConquest
         public AppShell()
         {
             InitializeComponent();
-            ThemeChrome.ApplyToApplication();
+            // Shell chrome is applied in App after MainPage is assigned; ctor runs before that assignment.
         }
     }
 }

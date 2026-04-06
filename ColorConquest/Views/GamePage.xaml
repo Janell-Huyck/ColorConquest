@@ -24,6 +24,13 @@
             <Label Text="{Binding MoveCount}" />
         </HorizontalStackLayout>
 
+        <HorizontalStackLayout HorizontalOptions="Center"
+                               Spacing="4"
+                               IsVisible="{Binding ShowGameTimer}">
+            <Label Text="Time:" />
+            <Label Text="{Binding ElapsedDisplay}" />
+        </HorizontalStackLayout>
+
         <Label Text="You win!"
                HorizontalOptions="Center"
                FontSize="36"

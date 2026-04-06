@@ -58,6 +58,24 @@
                                     Toggled="OnShowMoveCountToggled" />
                         </Grid>
 
+                        <Grid ColumnDefinitions="*,Auto"
+                              VerticalOptions="Center">
+                            <VerticalStackLayout Spacing="2">
+                                <Label x:Name="ShowGameTimerTitleLabel"
+                                       Text="Show game timer"
+                                       FontSize="16"
+                                       FontAttributes="Bold" />
+                                <Label x:Name="ShowGameTimerSubtitleLabel"
+                                       Text="Turn off to hide elapsed time on the Game screen."
+                                       LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+
+                            <Switch x:Name="ShowGameTimerSwitch"
+                                    Grid.Column="1"
+                                    VerticalOptions="Center"
+                                    Toggled="OnShowGameTimerToggled" />
+                        </Grid>
+
                         <VerticalStackLayout Spacing="8">
                             <Label x:Name="TileColorsTitleLabel"
                                    Text="Tile colors"
@@ -142,7 +160,7 @@
                 </Border>
 
                 <Label x:Name="FooterHintLabel"
-                       Text="More settings (board size and timer) coming soon."
+                       Text="More settings (such as board size) coming soon."
                        HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
         </ScrollView>

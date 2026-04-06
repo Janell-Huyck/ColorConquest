@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Input;
 using ColorConquest.Core.Models;
 using GameCell = ColorConquest.Core.Models.Cell;
@@ -15,6 +16,9 @@ public class GameViewModel : INotifyPropertyChanged
     private Board _board;
     private bool _hasGameStarted;
     private bool _showMoveCount = true;
+    private bool _showGameTimer = true;
+    private readonly Stopwatch _gameStopwatch = new();
+    private string _elapsedDisplay = "0:00";
 
     public GameViewModel(Board? board = null)
     {
@@ -50,6 +54,28 @@ public class GameViewModel : INotifyPropertyChanged
         }
     }
 
+    public bool ShowGameTimer
+    {
+        get => _showGameTimer;
+        private set
+        {
+            if (_showGameTimer == value) return;
+            _showGameTimer = value;
+            OnPropertyChanged(nameof(ShowGameTimer));
+        }
+    }
+
+    public string ElapsedDisplay
+    {
+        get => _elapsedDisplay;
+        private set
+        {
+            if (_elapsedDisplay == value) return;
+            _elapsedDisplay = value;
+            OnPropertyChanged(nameof(ElapsedDisplay));
+        }
+    }
+
     public bool IsWon { get; private set; }
     public ICommand CellTappedCommand { get; }
     public ICommand ResetCommand { get; }
@@ -64,12 +90,17 @@ public class GameViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(MoveCount));
 
         if (!_hasGameStarted)
+        {
             _hasGameStarted = true;
+            _gameStopwatch.Start();
+        }
 
         if (_hasGameStarted && _board.AreAllCellsSameColor())
         {
             IsWon = true;
+            _gameStopwatch.Stop();
             OnPropertyChanged(nameof(IsWon));
+            RefreshElapsedDisplay();
         }
     }
 
@@ -78,8 +109,10 @@ public class GameViewModel : INotifyPropertyChanged
         _board.ResetToInitialState();
         _hasGameStarted = false;
         IsWon = false;
+        _gameStopwatch.Reset();
         OnPropertyChanged(nameof(MoveCount));
         OnPropertyChanged(nameof(IsWon));
+        RefreshElapsedDisplay();
     }
 
     private void OnNewGame()
@@ -93,7 +126,9 @@ public class GameViewModel : INotifyPropertyChanged
         ReloadCellsFromBoard();
         _hasGameStarted = false;
         IsWon = false;
+        _gameStopwatch.Reset();
         OnPropertyChanged(nameof(IsWon));
+        RefreshElapsedDisplay();
     }
 
     private void ReloadCellsFromBoard()
@@ -116,6 +151,17 @@ public class GameViewModel : INotifyPropertyChanged
     public void SetShowMoveCount(bool show)
     {
         ShowMoveCount = show;
+    }
+
+    public void SetShowGameTimer(bool show)
+    {
+        ShowGameTimer = show;
+    }
+
+    public void RefreshElapsedDisplay()
+    {
+        var e = _gameStopwatch.Elapsed;
+        ElapsedDisplay = $"{(int)e.TotalMinutes}:{e.Seconds:D2}";
     }
 
     private void OnPropertyChanged(string propertyName)
