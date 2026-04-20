@@ -1,21 +1,21 @@
 namespace ColorConquest.Core;
 
 /// <summary>Maps to board dimensions: Easy 3×3, Medium 5×5, Hard 9×9.</summary>
-public enum BoardDifficulty
+public enum BoardSize
 {
     Easy,
     Medium,
     Hard
 }
 
-public static class BoardDifficultySizes
+public static class BoardSizeExtensions
 {
-    public static (int Rows, int Columns) GetDimensions(BoardDifficulty difficulty) =>
-        difficulty switch
+    public static (int Rows, int Columns) GetDimensions(BoardSize size) =>
+        size switch
         {
-            BoardDifficulty.Easy => (3, 3),
-            BoardDifficulty.Medium => (5, 5),
-            BoardDifficulty.Hard => (9, 9),
+            BoardSize.Easy => (3, 3),
+            BoardSize.Medium => (5, 5),
+            BoardSize.Hard => (9, 9),
             _ => (5, 5)
         };
 

@@ -4,33 +4,33 @@ namespace ColorConquest.Services;
 
 public static class GameBoardPreferences
 {
-    private const string DifficultyKey = "board_difficulty";
+    private const string BoardSizeKey = "board_size";
     private const string EasyValue = "easy";
     private const string MediumValue = "medium";
     private const string HardValue = "hard";
 
-    public static BoardDifficulty GetDifficulty()
+    public static BoardSize GetBoardSize()
     {
-        var saved = Preferences.Default.Get(DifficultyKey, MediumValue);
+        var saved = Preferences.Default.Get(BoardSizeKey, MediumValue);
         return saved switch
         {
-            EasyValue => BoardDifficulty.Easy,
-            HardValue => BoardDifficulty.Hard,
-            _ => BoardDifficulty.Medium
+            EasyValue => BoardSize.Easy,
+            HardValue => BoardSize.Hard,
+            _ => BoardSize.Medium
         };
     }
 
-    public static void SetDifficulty(BoardDifficulty difficulty)
+    public static void SetBoardSize(BoardSize boardSize)
     {
-        var value = difficulty switch
+        var value = boardSize switch
         {
-            BoardDifficulty.Easy => EasyValue,
-            BoardDifficulty.Hard => HardValue,
+            BoardSize.Easy => EasyValue,
+            BoardSize.Hard => HardValue,
             _ => MediumValue
         };
-        Preferences.Default.Set(DifficultyKey, value);
+        Preferences.Default.Set(BoardSizeKey, value);
     }
 
     public static (int Rows, int Columns) GetBoardDimensions() =>
-        BoardDifficultySizes.GetDimensions(GetDifficulty());
+        BoardSizeExtensions.GetDimensions(GetBoardSize());
 }

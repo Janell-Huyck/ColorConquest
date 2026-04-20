@@ -79,20 +79,20 @@ public partial class SettingsPage : ContentPage
         GameplaySectionBorder.BackgroundColor = surfaceBg;
         GameplaySectionBorder.Stroke = stroke;
         GameplayHeaderLabel.TextColor = headline;
-        DifficultyTitleLabel.TextColor = headline;
-        DifficultySubtitleLabel.TextColor = muted;
-        DifficultyEasyBorder.BackgroundColor = surfaceBg;
-        DifficultyEasyBorder.Stroke = stroke;
-        DifficultyMediumBorder.BackgroundColor = surfaceBg;
-        DifficultyMediumBorder.Stroke = stroke;
-        DifficultyHardBorder.BackgroundColor = surfaceBg;
-        DifficultyHardBorder.Stroke = stroke;
-        DifficultyEasyLabel.TextColor = headline;
-        DifficultyMediumLabel.TextColor = headline;
-        DifficultyHardLabel.TextColor = headline;
-        DifficultyEasyCheckLabel.TextColor = chevron;
-        DifficultyMediumCheckLabel.TextColor = chevron;
-        DifficultyHardCheckLabel.TextColor = chevron;
+        BoardSizeTitleLabel.TextColor = headline;
+        BoardSizeSubtitleLabel.TextColor = muted;
+        BoardSizeEasyBorder.BackgroundColor = surfaceBg;
+        BoardSizeEasyBorder.Stroke = stroke;
+        BoardSizeMediumBorder.BackgroundColor = surfaceBg;
+        BoardSizeMediumBorder.Stroke = stroke;
+        BoardSizeHardBorder.BackgroundColor = surfaceBg;
+        BoardSizeHardBorder.Stroke = stroke;
+        BoardSizeEasyLabel.TextColor = headline;
+        BoardSizeMediumLabel.TextColor = headline;
+        BoardSizeHardLabel.TextColor = headline;
+        BoardSizeEasyCheckLabel.TextColor = chevron;
+        BoardSizeMediumCheckLabel.TextColor = chevron;
+        BoardSizeHardCheckLabel.TextColor = chevron;
 
         PrimaryTileStrokeBorder.Stroke = stroke;
         PrimaryPickerRowBorder.BackgroundColor = surfaceBg;
@@ -130,7 +130,7 @@ public partial class SettingsPage : ContentPage
         BuildPaletteSwatches(dark);
 
         UpdateColorLabelsAndPreviews();
-        UpdateDifficultySelectionUi();
+        UpdateBoardSizeSelectionUi();
     }
 
     private void OnThemeToggled(object? sender, ToggledEventArgs e)
@@ -163,46 +163,46 @@ public partial class SettingsPage : ContentPage
         GameDisplayPreferences.SetShowGameTimer(e.Value);
     }
 
-    private void UpdateDifficultySelectionUi()
+    private void UpdateBoardSizeSelectionUi()
     {
-        var d = GameBoardPreferences.GetDifficulty();
-        DifficultyEasyCheckLabel.IsVisible = d == BoardDifficulty.Easy;
-        DifficultyMediumCheckLabel.IsVisible = d == BoardDifficulty.Medium;
-        DifficultyHardCheckLabel.IsVisible = d == BoardDifficulty.Hard;
+        var d = GameBoardPreferences.GetBoardSize();
+        BoardSizeEasyCheckLabel.IsVisible = d == BoardSize.Easy;
+        BoardSizeMediumCheckLabel.IsVisible = d == BoardSize.Medium;
+        BoardSizeHardCheckLabel.IsVisible = d == BoardSize.Hard;
     }
 
-    private async void OnDifficultyEasyTapped(object? sender, TappedEventArgs e) =>
-        await TryApplyDifficultyAsync(BoardDifficulty.Easy);
+    private async void OnBoardSizeEasyTapped(object? sender, TappedEventArgs e) =>
+        await TryApplyBoardSizeAsync(BoardSize.Easy);
 
-    private async void OnDifficultyMediumTapped(object? sender, TappedEventArgs e) =>
-        await TryApplyDifficultyAsync(BoardDifficulty.Medium);
+    private async void OnBoardSizeMediumTapped(object? sender, TappedEventArgs e) =>
+        await TryApplyBoardSizeAsync(BoardSize.Medium);
 
-    private async void OnDifficultyHardTapped(object? sender, TappedEventArgs e) =>
-        await TryApplyDifficultyAsync(BoardDifficulty.Hard);
+    private async void OnBoardSizeHardTapped(object? sender, TappedEventArgs e) =>
+        await TryApplyBoardSizeAsync(BoardSize.Hard);
 
-    private async Task TryApplyDifficultyAsync(BoardDifficulty selected)
+    private async Task TryApplyBoardSizeAsync(BoardSize selected)
     {
-        var current = GameBoardPreferences.GetDifficulty();
+        var current = GameBoardPreferences.GetBoardSize();
         if (selected == current)
             return;
 
         if (GameSessionSnapshot.LastReportedMoveCount > 0)
         {
             var confirm = await DisplayAlert(
-                "Change difficulty?",
-                "You have moves on the current game. Changing difficulty will replace the board and all progress will be lost.",
+                "Change board size?",
+                "You have moves on the current game. Changing board size will replace the board and all progress will be lost.",
                 "Change",
                 "Cancel");
             if (!confirm)
             {
-                UpdateDifficultySelectionUi();
+                UpdateBoardSizeSelectionUi();
                 return;
             }
         }
 
-        GameBoardPreferences.SetDifficulty(selected);
+        GameBoardPreferences.SetBoardSize(selected);
         GameSessionSnapshot.ClearProgress();
-        UpdateDifficultySelectionUi();
+        UpdateBoardSizeSelectionUi();
     }
 
     private void OnPrimaryPaletteRowTapped(object? sender, TappedEventArgs e)

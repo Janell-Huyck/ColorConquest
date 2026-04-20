@@ -1,7 +1,8 @@
+
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using ColorConquest.Core.Models;
 using GameCell = ColorConquest.Core.Models.Cell;
 
@@ -11,28 +12,31 @@ namespace ColorConquest.Core.ViewModels;
 /// ViewModel for the Game page. Holds the board and exposes a flat list of cells
 /// for binding, plus a command for when a cell is tapped.
 /// </summary>
-public class GameViewModel : INotifyPropertyChanged
+public partial class GameViewModel : ObservableObject
 {
     private Board _board;
     private bool _hasGameStarted;
-    private bool _showMoveCount = true;
-    private bool _showGameTimer = true;
+    [ObservableProperty]
+    private bool showMoveCount = true;
+
+    [ObservableProperty]
+    private bool showGameTimer = true;
+
     private readonly Stopwatch _gameStopwatch = new();
-    private string _elapsedDisplay = "0:00";
-    private double _tileDisplaySize = 48;
+
+    [ObservableProperty]
+    private string elapsedDisplay = "0:00";
+
+    [ObservableProperty]
+    private double tileDisplaySize = 48;
 
     /// <summary>Width and height of each board cell in device-independent units; view sets this so large boards fit on small screens.</summary>
-    public double TileDisplaySize
+    partial void OnTileDisplaySizeChanging(double value)
     {
-        get => _tileDisplaySize;
-        private set
-        {
-            if (Math.Abs(_tileDisplaySize - value) < 0.25)
-                return;
-            _tileDisplaySize = value;
-            OnPropertyChanged(nameof(TileDisplaySize));
-        }
+        // Optionally add validation logic here if needed
     }
+    public ObservableCollection<GameCell> Cells { get; private set; }
+    public int RowCount => _board.RowCount;
 
     public void SetTileDisplaySize(double size) => TileDisplaySize = size;
 
@@ -45,12 +49,10 @@ public class GameViewModel : INotifyPropertyChanged
     public GameViewModel(int rows, int columns)
     {
         var random = new Random();
-        var moves = BoardDifficultySizes.ScrambleMoveCount(rows, columns);
+        var moves = BoardSizeExtensions.ScrambleMoveCount(rows, columns);
         _board = Board.CreateScrambled(rows, columns, moves, random);
         Cells = new ObservableCollection<GameCell>();
-        CellTappedCommand = new Command<GameCell>(OnCellTapped);
-        ResetCommand = new Command(OnReset);
-        NewGameCommand = new Command(OnNewGame);
+
         ReloadCellsFromBoard();
     }
 
@@ -59,84 +61,23 @@ public class GameViewModel : INotifyPropertyChanged
     {
         _board = board;
         Cells = new ObservableCollection<GameCell>();
-        CellTappedCommand = new Command<GameCell>(OnCellTapped);
-        ResetCommand = new Command(OnReset);
-        NewGameCommand = new Command(OnNewGame);
         ReloadCellsFromBoard();
     }
 
-    public ObservableCollection<GameCell> Cells { get; }
-    public int RowCount => _board.RowCount;
     public int ColumnCount => _board.ColumnCount;
     public int MoveCount => _board.MoveCount;
-    public bool ShowMoveCount
-    {
-        get => _showMoveCount;
-        private set
-        {
-            if (_showMoveCount == value) return;
-            _showMoveCount = value;
-            OnPropertyChanged(nameof(ShowMoveCount));
-        }
-    }
 
-    public bool ShowGameTimer
-    {
-        get => _showGameTimer;
-        private set
-        {
-            if (_showGameTimer == value) return;
-            _showGameTimer = value;
-            OnPropertyChanged(nameof(ShowGameTimer));
-        }
-    }
 
-    public string ElapsedDisplay
-    {
-        get => _elapsedDisplay;
-        private set
-        {
-            if (_elapsedDisplay == value) return;
-            _elapsedDisplay = value;
-            OnPropertyChanged(nameof(ElapsedDisplay));
-        }
-    }
-
-    private bool _isWon;
-    public bool IsWon
-    {
-        get => _isWon;
-        private set
-        {
-            if (_isWon == value) return;
-            _isWon = value;
-            OnPropertyChanged(nameof(IsWon));
-            OnPropertyChanged(nameof(WinMessage));
-        }
-    }
+    [ObservableProperty]
+    private bool isWon;
 
     public string WinMessage => IsWon ? "You win!" : " ";
-    public ICommand CellTappedCommand { get; }
-    public ICommand ResetCommand { get; }
-    public ICommand NewGameCommand { get; }
-    public event PropertyChangedEventHandler? PropertyChanged;
 
-    /// <summary>Replace the board when Settings difficulty changes (may change row/column count).</summary>
-    public void RecreateBoardForDimensions(int rows, int columns)
+    partial void OnIsWonChanged(bool value)
     {
-        if (rows == _board.RowCount && columns == _board.ColumnCount)
-            return;
-
-        var random = new Random();
-        var moves = BoardDifficultySizes.ScrambleMoveCount(rows, columns);
-        _board = Board.CreateScrambled(rows, columns, moves, random);
-        ReloadCellsFromBoard();
-        _hasGameStarted = false;
-        IsWon = false;
-        _gameStopwatch.Reset();
-        RefreshElapsedDisplay();
+        OnPropertyChanged(nameof(WinMessage));
     }
-
+    [RelayCommand]
     private void OnCellTapped(GameCell? cell)
     {
         if (cell is null) return;
@@ -158,6 +99,7 @@ public class GameViewModel : INotifyPropertyChanged
         }
     }
 
+    [RelayCommand]
     private void OnReset()
     {
         _board.ResetToInitialState();
@@ -168,12 +110,13 @@ public class GameViewModel : INotifyPropertyChanged
         RefreshElapsedDisplay();
     }
 
+    [RelayCommand]
     private void OnNewGame()
     {
         var random = new Random();
         var rows = _board.RowCount;
         var columns = _board.ColumnCount;
-        var moves = BoardDifficultySizes.ScrambleMoveCount(rows, columns);
+        var moves = BoardSizeExtensions.ScrambleMoveCount(rows, columns);
 
         _board = Board.CreateScrambled(rows, columns, moves, random);
         ReloadCellsFromBoard();
@@ -182,6 +125,27 @@ public class GameViewModel : INotifyPropertyChanged
         _gameStopwatch.Reset();
         RefreshElapsedDisplay();
     }
+    /// <summary>Replace the board when Settings board size changes (may change row/column count).</summary>
+    public void RecreateBoardForDimensions(int rows, int columns)
+    {
+        if (rows == _board.RowCount && columns == _board.ColumnCount)
+            return;
+
+        var random = new Random();
+        var moves = BoardSizeExtensions.ScrambleMoveCount(rows, columns);
+        _board = Board.CreateScrambled(rows, columns, moves, random);
+        ReloadCellsFromBoard();
+        _hasGameStarted = false;
+        IsWon = false;
+        _gameStopwatch.Reset();
+        RefreshElapsedDisplay();
+    }
+
+    // Removed duplicate method definition
+
+    // Removed duplicate method definition
+
+    // Removed duplicate method definition
 
     private void ReloadCellsFromBoard()
     {
@@ -200,15 +164,8 @@ public class GameViewModel : INotifyPropertyChanged
             cell.NotifyThemeChanged();
     }
 
-    public void SetShowMoveCount(bool show)
-    {
-        ShowMoveCount = show;
-    }
-
-    public void SetShowGameTimer(bool show)
-    {
-        ShowGameTimer = show;
-    }
+    public void SetShowMoveCount(bool show) => ShowMoveCount = show;
+    public void SetShowGameTimer(bool show) => ShowGameTimer = show;
 
     public void RefreshElapsedDisplay()
     {
@@ -216,8 +173,5 @@ public class GameViewModel : INotifyPropertyChanged
         ElapsedDisplay = $"{(int)e.TotalMinutes}:{e.Seconds:D2}";
     }
 
-    private void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+
 }

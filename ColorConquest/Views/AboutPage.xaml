@@ -51,7 +51,7 @@
                     <Label Text="Settings"
                            FontSize="20"
                            FontAttributes="Bold" />
-                    <Label Text="From Settings you can set difficulty (3×3, 5×5, or 9×9), tile colors, light or dark theme, and whether the move count and timer are shown."
+                    <Label Text="From Settings you can set board size (3×3, 5×5, or 9×9), tile colors, light or dark theme, and whether the move count and timer are shown."
                            LineBreakMode="WordWrap" />
                 </VerticalStackLayout>
             </Border>

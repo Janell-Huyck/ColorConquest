@@ -164,27 +164,27 @@
                                Text="Gameplay"
                                FontSize="20"
                                FontAttributes="Bold" />
-                        <Label x:Name="DifficultyTitleLabel"
-                               Text="Difficulty"
+                        <Label x:Name="BoardSizeTitleLabel"
+                               Text="Board Size"
                                FontSize="16"
                                FontAttributes="Bold" />
-                        <Label x:Name="DifficultySubtitleLabel"
+                        <Label x:Name="BoardSizeSubtitleLabel"
                                Text="Tap a row to choose. Easy 3×3, Medium 5×5, Hard 9×9. Applies when you open the Game screen."
                                LineBreakMode="WordWrap" />
                         <VerticalStackLayout Spacing="8">
-                            <Border x:Name="DifficultyEasyBorder"
+                            <Border x:Name="BoardSizeEasyBorder"
                                     StrokeThickness="1"
                                     StrokeShape="RoundRectangle 8"
                                     Padding="12,10">
                                 <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnDifficultyEasyTapped" />
+                                    <TapGestureRecognizer Tapped="OnBoardSizeEasyTapped" />
                                 </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <Label x:Name="DifficultyEasyLabel"
+                                    <Label x:Name="BoardSizeEasyLabel"
                                            Text="Easy (3×3)"
                                            VerticalOptions="Center"
                                            LineBreakMode="TailTruncation" />
-                                    <Label x:Name="DifficultyEasyCheckLabel"
+                                    <Label x:Name="BoardSizeEasyCheckLabel"
                                            Grid.Column="1"
                                            Text="✓"
                                            FontSize="16"
@@ -192,19 +192,19 @@
                                            IsVisible="False" />
                                 </Grid>
                             </Border>
-                            <Border x:Name="DifficultyMediumBorder"
+                            <Border x:Name="BoardSizeMediumBorder"
                                     StrokeThickness="1"
                                     StrokeShape="RoundRectangle 8"
                                     Padding="12,10">
                                 <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnDifficultyMediumTapped" />
+                                    <TapGestureRecognizer Tapped="OnBoardSizeMediumTapped" />
                                 </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <Label x:Name="DifficultyMediumLabel"
+                                    <Label x:Name="BoardSizeMediumLabel"
                                            Text="Medium (5×5)"
                                            VerticalOptions="Center"
                                            LineBreakMode="TailTruncation" />
-                                    <Label x:Name="DifficultyMediumCheckLabel"
+                                    <Label x:Name="BoardSizeMediumCheckLabel"
                                            Grid.Column="1"
                                            Text="✓"
                                            FontSize="16"
@@ -212,19 +212,19 @@
                                            IsVisible="False" />
                                 </Grid>
                             </Border>
-                            <Border x:Name="DifficultyHardBorder"
+                            <Border x:Name="BoardSizeHardBorder"
                                     StrokeThickness="1"
                                     StrokeShape="RoundRectangle 8"
                                     Padding="12,10">
                                 <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnDifficultyHardTapped" />
+                                    <TapGestureRecognizer Tapped="OnBoardSizeHardTapped" />
                                 </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <Label x:Name="DifficultyHardLabel"
+                                    <Label x:Name="BoardSizeHardLabel"
                                            Text="Hard (9×9)"
                                            VerticalOptions="Center"
                                            LineBreakMode="TailTruncation" />
-                                    <Label x:Name="DifficultyHardCheckLabel"
+                                    <Label x:Name="BoardSizeHardCheckLabel"
                                            Grid.Column="1"
                                            Text="✓"
                                            FontSize="16"
