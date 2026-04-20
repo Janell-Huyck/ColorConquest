@@ -34,8 +34,8 @@
                            FontAttributes="Bold" />
                     <Label Text="If you're frustrated or want a sure-fire solving strategy, watch this easy step-by-step guide."
                            LineBreakMode="WordWrap" />
-                    <Button Text="Watch Solve Guide"
-                            Clicked="OnSolveGuideTapped" />
+                  <Button Text="Watch Solve Guide"
+                         Command="{Binding OpenSolveGuideCommand}" />
                     <Label Text="Opens in your web browser: https://youtu.be/LnYCcUc4FIo?si=f1WIOlg7Z-9hUjY9"
                            FontSize="12"
                            Opacity="0.75"

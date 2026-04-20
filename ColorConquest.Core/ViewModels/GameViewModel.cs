@@ -16,6 +16,8 @@ public partial class GameViewModel : ObservableObject
 {
     private Board _board;
     private bool _hasGameStarted;
+    private bool _timerActive;
+    private CancellationTokenSource? _timerCts;
     [ObservableProperty]
     private bool showMoveCount = true;
 
@@ -34,6 +36,39 @@ public partial class GameViewModel : ObservableObject
     public int RowCount => _board.RowCount;
 
     public void SetTileDisplaySize(double size) => TileDisplaySize = size;
+
+    public void StartTimer()
+    {
+        if (_timerActive) return;
+        _timerActive = true;
+        _timerCts = new CancellationTokenSource();
+        _ = RunTimerAsync(_timerCts.Token);
+    }
+
+    public void StopTimer()
+    {
+        _timerActive = false;
+        _timerCts?.Cancel();
+    }
+
+    private async Task RunTimerAsync(CancellationToken token)
+    {
+        while (_timerActive && !token.IsCancellationRequested)
+        {
+            await Task.Delay(1000, token);
+            RefreshElapsedDisplay();
+        }
+    }
+
+    public void OnThemeChanged()
+    {
+        RefreshThemeDependentVisuals();
+    }
+
+    public void OnColorsChanged()
+    {
+        RefreshThemeDependentVisuals();
+    }
 
     /// <summary>5×5 scrambled board (used by tests and as legacy default).</summary>
     public GameViewModel() : this(GameConstants.DefaultRowCount, GameConstants.DefaultColumnCount)

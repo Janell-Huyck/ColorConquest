@@ -93,13 +93,13 @@ public partial class GamePage : ContentPage
         _viewModel.SetShowMoveCount(GameDisplayPreferences.GetShowMoveCount());
         _viewModel.SetShowGameTimer(GameDisplayPreferences.GetShowGameTimer());
         _viewModel.RefreshElapsedDisplay();
-        _viewModel.RefreshThemeDependentVisuals();
+        _viewModel.OnThemeChanged();
+        _viewModel.OnColorsChanged();
         if (Application.Current is not null)
             Application.Current.RequestedThemeChanged += OnRequestedThemeChanged;
         TileColorPreferences.ColorsChanged += OnColorsChanged;
 
-        _elapsedTickerActive = true;
-        Dispatcher.StartTimer(TimeSpan.FromSeconds(1), ElapsedTickerTick);
+        _viewModel.StartTimer();
 
         Dispatcher.Dispatch(UpdateBoardLayoutMetrics);
     }
@@ -107,7 +107,7 @@ public partial class GamePage : ContentPage
     protected override void OnDisappearing()
     {
         _viewModel.PropertyChanged -= OnGameViewModelPropertyChanged;
-        _elapsedTickerActive = false;
+        _viewModel.StopTimer();
         if (Application.Current is not null)
             Application.Current.RequestedThemeChanged -= OnRequestedThemeChanged;
         TileColorPreferences.ColorsChanged -= OnColorsChanged;
@@ -123,22 +123,13 @@ public partial class GamePage : ContentPage
             Dispatcher.Dispatch(UpdateBoardLayoutMetrics);
     }
 
-    private bool ElapsedTickerTick()
-    {
-        if (!_elapsedTickerActive)
-            return false;
-
-        _viewModel.RefreshElapsedDisplay();
-        return true;
-    }
-
     private void OnRequestedThemeChanged(object? sender, AppThemeChangedEventArgs e)
     {
-        _viewModel.RefreshThemeDependentVisuals();
+        _viewModel.OnThemeChanged();
     }
 
     private void OnColorsChanged(object? sender, EventArgs e)
     {
-        _viewModel.RefreshThemeDependentVisuals();
+        _viewModel.OnColorsChanged();
     }
 }

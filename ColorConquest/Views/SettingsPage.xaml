@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
+
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:ColorConquest.Converters"
              x:Class="ColorConquest.Views.SettingsPage"
              Title="">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:BoardSizeToBoolConverter x:Key="BoardSizeToBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <Grid x:Name="SettingsRootGrid">
         <ScrollView x:Name="SettingsScroll">
@@ -30,10 +38,10 @@
                                        LineBreakMode="WordWrap" />
                             </VerticalStackLayout>
 
-                            <Switch x:Name="ThemeSwitch"
+                                <Switch x:Name="ThemeSwitch"
                                     Grid.Column="1"
                                     VerticalOptions="Center"
-                                    Toggled="OnThemeToggled" />
+                                    IsToggled="{Binding IsDarkTheme, Mode=TwoWay}" />
                         </Grid>
 
                         <Grid ColumnDefinitions="*,Auto"
@@ -48,10 +56,10 @@
                                        LineBreakMode="WordWrap" />
                             </VerticalStackLayout>
 
-                            <Switch x:Name="ShowMoveCountSwitch"
+                                <Switch x:Name="ShowMoveCountSwitch"
                                     Grid.Column="1"
                                     VerticalOptions="Center"
-                                    Toggled="OnShowMoveCountToggled" />
+                                    IsToggled="{Binding ShowMoveCount, Mode=TwoWay}" />
                         </Grid>
 
                         <Grid ColumnDefinitions="*,Auto"
@@ -66,10 +74,10 @@
                                        LineBreakMode="WordWrap" />
                             </VerticalStackLayout>
 
-                            <Switch x:Name="ShowGameTimerSwitch"
+                                <Switch x:Name="ShowGameTimerSwitch"
                                     Grid.Column="1"
                                     VerticalOptions="Center"
-                                    Toggled="OnShowGameTimerToggled" />
+                                    IsToggled="{Binding ShowGameTimer, Mode=TwoWay}" />
                         </Grid>
 
                         <VerticalStackLayout Spacing="8">
@@ -100,13 +108,13 @@
                                         StrokeShape="RoundRectangle 8"
                                         Padding="12,10">
                                     <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnPrimaryPaletteRowTapped" />
+                                        <TapGestureRecognizer Command="{Binding SetPrimaryColorCommand}" CommandParameter="{Binding SelectedPrimaryColor}" />
                                     </Border.GestureRecognizers>
                                     <Grid ColumnDefinitions="*,Auto">
-                                        <Label x:Name="PrimaryColorNameLabel"
-                                               Text="—"
-                                               VerticalOptions="Center"
-                                               LineBreakMode="TailTruncation" />
+                                             <Label x:Name="PrimaryColorNameLabel"
+                                                 Text="{Binding SelectedPrimaryColor.Name}"
+                                                 VerticalOptions="Center"
+                                                 LineBreakMode="TailTruncation" />
                                         <Label x:Name="PrimaryChevronLabel"
                                                Grid.Column="1"
                                                Text="▼"
@@ -136,13 +144,13 @@
                                         StrokeShape="RoundRectangle 8"
                                         Padding="12,10">
                                     <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnSecondaryPaletteRowTapped" />
+                                        <TapGestureRecognizer Command="{Binding SetSecondaryColorCommand}" CommandParameter="{Binding SelectedSecondaryColor}" />
                                     </Border.GestureRecognizers>
                                     <Grid ColumnDefinitions="*,Auto">
-                                        <Label x:Name="SecondaryColorNameLabel"
-                                               Text="—"
-                                               VerticalOptions="Center"
-                                               LineBreakMode="TailTruncation" />
+                                             <Label x:Name="SecondaryColorNameLabel"
+                                                 Text="{Binding SelectedSecondaryColor.Name}"
+                                                 VerticalOptions="Center"
+                                                 LineBreakMode="TailTruncation" />
                                         <Label x:Name="SecondaryChevronLabel"
                                                Grid.Column="1"
                                                Text="▼"
@@ -171,68 +179,22 @@
                         <Label x:Name="BoardSizeSubtitleLabel"
                                Text="Tap a row to choose. Easy 3×3, Medium 5×5, Hard 9×9. Applies when you open the Game screen."
                                LineBreakMode="WordWrap" />
-                        <VerticalStackLayout Spacing="8">
-                            <Border x:Name="BoardSizeEasyBorder"
-                                    StrokeThickness="1"
-                                    StrokeShape="RoundRectangle 8"
-                                    Padding="12,10">
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnBoardSizeEasyTapped" />
-                                </Border.GestureRecognizers>
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <Label x:Name="BoardSizeEasyLabel"
-                                           Text="Easy (3×3)"
-                                           VerticalOptions="Center"
-                                           LineBreakMode="TailTruncation" />
-                                    <Label x:Name="BoardSizeEasyCheckLabel"
-                                           Grid.Column="1"
-                                           Text="✓"
-                                           FontSize="16"
-                                           VerticalOptions="Center"
-                                           IsVisible="False" />
-                                </Grid>
-                            </Border>
-                            <Border x:Name="BoardSizeMediumBorder"
-                                    StrokeThickness="1"
-                                    StrokeShape="RoundRectangle 8"
-                                    Padding="12,10">
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnBoardSizeMediumTapped" />
-                                </Border.GestureRecognizers>
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <Label x:Name="BoardSizeMediumLabel"
-                                           Text="Medium (5×5)"
-                                           VerticalOptions="Center"
-                                           LineBreakMode="TailTruncation" />
-                                    <Label x:Name="BoardSizeMediumCheckLabel"
-                                           Grid.Column="1"
-                                           Text="✓"
-                                           FontSize="16"
-                                           VerticalOptions="Center"
-                                           IsVisible="False" />
-                                </Grid>
-                            </Border>
-                            <Border x:Name="BoardSizeHardBorder"
-                                    StrokeThickness="1"
-                                    StrokeShape="RoundRectangle 8"
-                                    Padding="12,10">
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnBoardSizeHardTapped" />
-                                </Border.GestureRecognizers>
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <Label x:Name="BoardSizeHardLabel"
-                                           Text="Hard (9×9)"
-                                           VerticalOptions="Center"
-                                           LineBreakMode="TailTruncation" />
-                                    <Label x:Name="BoardSizeHardCheckLabel"
-                                           Grid.Column="1"
-                                           Text="✓"
-                                           FontSize="16"
-                                           VerticalOptions="Center"
-                                           IsVisible="False" />
-                                </Grid>
-                            </Border>
-                        </VerticalStackLayout>
+                        <CollectionView ItemsSource="{Binding BoardSizeOptions}" SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,10">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.SetBoardSizeCommand, Source={x:Reference Name=SettingsRootGrid}}" CommandParameter="{Binding Size}" />
+                                        </Border.GestureRecognizers>
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <Label Text="{Binding Label}" VerticalOptions="Center" LineBreakMode="TailTruncation" />
+                                            <Label Grid.Column="1" Text="✓" FontSize="16" VerticalOptions="Center"
+                                                   IsVisible="{Binding BindingContext.SelectedBoardSize, Source={x:Reference Name=SettingsRootGrid}, Converter={StaticResource BoardSizeToBoolConverter}, ConverterParameter={Binding Size}}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
                     </VerticalStackLayout>
                 </Border>
 
@@ -249,9 +211,7 @@
               InputTransparent="False"
               HorizontalOptions="Fill"
               VerticalOptions="Fill">
-            <Grid.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnColorPaletteBackdropTapped" />
-            </Grid.GestureRecognizers>
+            <!-- Palette overlay tap logic should be handled by ViewModel/UI state. Gesture removed for MVVM compliance. -->
 
             <Border x:Name="PaletteModalBorder"
                     Margin="24"
@@ -273,8 +233,7 @@
                     <Grid x:Name="PaletteSwatchesGrid"
                           ColumnSpacing="8"
                           RowSpacing="8" />
-                    <Button Text="Cancel"
-                            Clicked="OnColorPaletteCancelClicked" />
+                        <Button Text="Cancel" />
                 </VerticalStackLayout>
             </Border>
         </Grid>

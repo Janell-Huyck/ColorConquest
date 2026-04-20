@@ -9,11 +9,11 @@
                              VerticalOptions="Center"
                              HorizontalOptions="Center"
                              Spacing="32">
-            <Button x:Name="StartButton"
+                <Button x:Name="StartButton"
                     Text="Start"
                     FontSize="24"
                     Padding="48,20"
-                    Clicked="OnStartClicked" />
+                    Command="{Binding StartGameCommand}" />
         </VerticalStackLayout>
     </Grid>
 

@@ -2,16 +2,18 @@ namespace ColorConquest.Views
 {
     public partial class AboutPage : ContentPage
     {
-        private static readonly Uri SolveGuideUri = new("https://youtu.be/LnYCcUc4FIo?si=f1WIOlg7Z-9hUjY9");
-
+        private readonly ColorConquest.Core.ViewModels.AboutViewModel _viewModel;
         public AboutPage()
         {
             InitializeComponent();
+            _viewModel = new ColorConquest.Core.ViewModels.AboutViewModel();
+            _viewModel.OpenSolveGuideRequested += OnOpenSolveGuideRequested;
+            BindingContext = _viewModel;
         }
 
-        private async void OnSolveGuideTapped(object? sender, EventArgs e)
+        private async Task OnOpenSolveGuideRequested()
         {
-            await Launcher.Default.OpenAsync(SolveGuideUri);
+            await Launcher.Default.OpenAsync(ColorConquest.Core.ViewModels.AboutViewModel.SolveGuideUri);
         }
     }
 }
