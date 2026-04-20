@@ -108,7 +108,6 @@ public partial class SettingsPage : ContentPage
         PaletteTitleLabel.TextColor = headline;
         PaletteInstructionLabel.TextColor = muted;
 
-        SettingsPageTitleLabel.TextColor = headline;
         AppearanceHeaderLabel.TextColor = headline;
         DarkModeTitleLabel.TextColor = headline;
         DarkModeSubtitleLabel.TextColor = muted;

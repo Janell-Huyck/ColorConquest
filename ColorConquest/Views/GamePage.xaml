@@ -4,7 +4,7 @@
              xmlns:converters="clr-namespace:ColorConquest.Converters"
              x:Class="ColorConquest.Views.GamePage"
              x:Name="GamePageRoot"
-             Title="Game">
+             Title="">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -19,9 +19,6 @@
           RowDefinitions="Auto,*,Auto">
         <VerticalStackLayout Grid.Row="0"
                              Spacing="16">
-            <Label Text="Color Conquest"
-                   FontSize="24"
-                   HorizontalOptions="Center" />
 
             <HorizontalStackLayout HorizontalOptions="Center"
                                    Spacing="4"
