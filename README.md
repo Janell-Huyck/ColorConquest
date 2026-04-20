@@ -4,6 +4,32 @@ A short, logic-based puzzle game for quick breaks. Tap a square to toggle it and
 
 Built with .NET 8, C#, and .NET MAUI (MVVM).
 
+
+## Project Aims
+- Provide a short logic-based puzzle that can be completed quickly.
+- Offer a game that is simple to learn but challenging to master.
+- Avoid the complexity, time commitment, and ad-heavy experience of many mobile games.
+- Target college students and casual gamers seeking a quick challenge.
+
+## Key Features
+- Interactive grid of tiles with a two-color toggle system
+- Tap interaction affects tile and adjacent tiles
+- Win detection
+- Reset button to restart the puzzle
+- Shell navigation for multi-page app structure
+- About page with app information
+- Settings page with:
+  - Light/Dark theme selection
+  - Show/Hide move count and timer
+  - Color selection
+  - Board size selection (e.g., 5x5, 7x7, 9x9 grids)
+
+## Additional Notes
+- The app is designed for quick play and minimal friction.
+- All code follows MVVM best practices and uses CommunityToolkit.Mvvm for clean, maintainable architecture.
+
+---
+
 ## Run the app
 
 ### 1. Prerequisites
@@ -170,3 +196,5 @@ dotnet build ColorConquest/ColorConquest.csproj -f net8.0-maccatalyst
 dotnet build ColorConquest/ColorConquest.csproj -f net8.0-ios
 dotnet build ColorConquest/ColorConquest.csproj -f net8.0-windows10.0.19041.0
 ```
+
+---

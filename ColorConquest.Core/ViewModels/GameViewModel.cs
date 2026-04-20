@@ -30,11 +30,6 @@ public partial class GameViewModel : ObservableObject
     [ObservableProperty]
     private double tileDisplaySize = 48;
 
-    /// <summary>Width and height of each board cell in device-independent units; view sets this so large boards fit on small screens.</summary>
-    partial void OnTileDisplaySizeChanging(double value)
-    {
-        // Optionally add validation logic here if needed
-    }
     public ObservableCollection<GameCell> Cells { get; private set; }
     public int RowCount => _board.RowCount;
 
@@ -141,12 +136,6 @@ public partial class GameViewModel : ObservableObject
         RefreshElapsedDisplay();
     }
 
-    // Removed duplicate method definition
-
-    // Removed duplicate method definition
-
-    // Removed duplicate method definition
-
     private void ReloadCellsFromBoard()
     {
         Cells.Clear();
@@ -172,6 +161,4 @@ public partial class GameViewModel : ObservableObject
         var e = _gameStopwatch.Elapsed;
         ElapsedDisplay = $"{(int)e.TotalMinutes}:{e.Seconds:D2}";
     }
-
-
 }
