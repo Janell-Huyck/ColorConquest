@@ -1,3 +1,4 @@
+using ColorConquest.Core;
 using ColorConquest.Services;
 using Microsoft.Maui.Controls.Shapes;
 
@@ -75,6 +76,24 @@ public partial class SettingsPage : ContentPage
         AppearanceSectionBorder.BackgroundColor = surfaceBg;
         AppearanceSectionBorder.Stroke = stroke;
 
+        GameplaySectionBorder.BackgroundColor = surfaceBg;
+        GameplaySectionBorder.Stroke = stroke;
+        GameplayHeaderLabel.TextColor = headline;
+        DifficultyTitleLabel.TextColor = headline;
+        DifficultySubtitleLabel.TextColor = muted;
+        DifficultyEasyBorder.BackgroundColor = surfaceBg;
+        DifficultyEasyBorder.Stroke = stroke;
+        DifficultyMediumBorder.BackgroundColor = surfaceBg;
+        DifficultyMediumBorder.Stroke = stroke;
+        DifficultyHardBorder.BackgroundColor = surfaceBg;
+        DifficultyHardBorder.Stroke = stroke;
+        DifficultyEasyLabel.TextColor = headline;
+        DifficultyMediumLabel.TextColor = headline;
+        DifficultyHardLabel.TextColor = headline;
+        DifficultyEasyCheckLabel.TextColor = chevron;
+        DifficultyMediumCheckLabel.TextColor = chevron;
+        DifficultyHardCheckLabel.TextColor = chevron;
+
         PrimaryTileStrokeBorder.Stroke = stroke;
         PrimaryPickerRowBorder.BackgroundColor = surfaceBg;
         PrimaryPickerRowBorder.Stroke = stroke;
@@ -112,6 +131,7 @@ public partial class SettingsPage : ContentPage
         BuildPaletteSwatches(dark);
 
         UpdateColorLabelsAndPreviews();
+        UpdateDifficultySelectionUi();
     }
 
     private void OnThemeToggled(object? sender, ToggledEventArgs e)
@@ -142,6 +162,48 @@ public partial class SettingsPage : ContentPage
             return;
 
         GameDisplayPreferences.SetShowGameTimer(e.Value);
+    }
+
+    private void UpdateDifficultySelectionUi()
+    {
+        var d = GameBoardPreferences.GetDifficulty();
+        DifficultyEasyCheckLabel.IsVisible = d == BoardDifficulty.Easy;
+        DifficultyMediumCheckLabel.IsVisible = d == BoardDifficulty.Medium;
+        DifficultyHardCheckLabel.IsVisible = d == BoardDifficulty.Hard;
+    }
+
+    private async void OnDifficultyEasyTapped(object? sender, TappedEventArgs e) =>
+        await TryApplyDifficultyAsync(BoardDifficulty.Easy);
+
+    private async void OnDifficultyMediumTapped(object? sender, TappedEventArgs e) =>
+        await TryApplyDifficultyAsync(BoardDifficulty.Medium);
+
+    private async void OnDifficultyHardTapped(object? sender, TappedEventArgs e) =>
+        await TryApplyDifficultyAsync(BoardDifficulty.Hard);
+
+    private async Task TryApplyDifficultyAsync(BoardDifficulty selected)
+    {
+        var current = GameBoardPreferences.GetDifficulty();
+        if (selected == current)
+            return;
+
+        if (GameSessionSnapshot.LastReportedMoveCount > 0)
+        {
+            var confirm = await DisplayAlert(
+                "Change difficulty?",
+                "You have moves on the current game. Changing difficulty will replace the board and all progress will be lost.",
+                "Change",
+                "Cancel");
+            if (!confirm)
+            {
+                UpdateDifficultySelectionUi();
+                return;
+            }
+        }
+
+        GameBoardPreferences.SetDifficulty(selected);
+        GameSessionSnapshot.ClearProgress();
+        UpdateDifficultySelectionUi();
     }
 
     private void OnPrimaryPaletteRowTapped(object? sender, TappedEventArgs e)

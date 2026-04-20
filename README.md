@@ -45,6 +45,8 @@ Or from the repository root:
 dotnet run --project ColorConquest/ColorConquest.csproj
 ```
 
+Same as **`make run`** from the repo root (see **Running tests locally** for **`make test`**).
+
 The Mac app should launch as a desktop window.
 
 **Android**  
@@ -123,20 +125,25 @@ Open `ColorConquest.sln` in **Visual Studio** (Windows or Mac) or **JetBrains Ri
 
 ## Running tests locally
 
-From the repository root:
+From the repository root, the **Makefile** provides:
 
-```bash
-make test
-```
+| Command | What it does |
+|---------|----------------|
+| **`make test`** (or plain **`make`**) | Runs unit tests (`ColorConquest.Tests`). No full MAUI workload required for every platform. |
+| **`make run`** | Runs the MAUI app (`dotnet run --project ColorConquest/ColorConquest.csproj`). Requires the workload for your platform (see **Run the app**). |
 
-The default target is **test**, so **`make`** with no arguments does the same thing. **`make help`** lists targets.
+**`make help`** lists these targets.
 
-This runs the unit tests (Core + Tests projects only) and does not require a full MAUI workload for every platform.
-
-Without Make:
+Without Make — tests:
 
 ```bash
 dotnet test ColorConquest.Tests/ColorConquest.Tests.csproj
+```
+
+Without Make — app (macOS example):
+
+```bash
+dotnet run --project ColorConquest/ColorConquest.csproj
 ```
 
 ---

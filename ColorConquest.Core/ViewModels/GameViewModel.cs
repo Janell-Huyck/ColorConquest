@@ -19,24 +19,50 @@ public class GameViewModel : INotifyPropertyChanged
     private bool _showGameTimer = true;
     private readonly Stopwatch _gameStopwatch = new();
     private string _elapsedDisplay = "0:00";
+    private double _tileDisplaySize = 48;
 
-    public GameViewModel(Board? board = null)
+    /// <summary>Width and height of each board cell in device-independent units; view sets this so large boards fit on small screens.</summary>
+    public double TileDisplaySize
     {
-        if (board is null)
+        get => _tileDisplaySize;
+        private set
         {
-            var random = new Random();
-            const int scrambleMoves = 15;
-            _board = Board.CreateScrambled(GameConstants.DefaultRowCount, GameConstants.DefaultColumnCount, scrambleMoves, random);
+            if (Math.Abs(_tileDisplaySize - value) < 0.25)
+                return;
+            _tileDisplaySize = value;
+            OnPropertyChanged(nameof(TileDisplaySize));
         }
-        else
-        {
-            _board = board;
-        }
+    }
+
+    public void SetTileDisplaySize(double size) => TileDisplaySize = size;
+
+    /// <summary>5×5 scrambled board (used by tests and as legacy default).</summary>
+    public GameViewModel() : this(GameConstants.DefaultRowCount, GameConstants.DefaultColumnCount)
+    {
+    }
+
+    /// <summary>New scrambled game with the given dimensions.</summary>
+    public GameViewModel(int rows, int columns)
+    {
+        var random = new Random();
+        var moves = BoardDifficultySizes.ScrambleMoveCount(rows, columns);
+        _board = Board.CreateScrambled(rows, columns, moves, random);
         Cells = new ObservableCollection<GameCell>();
-        ReloadCellsFromBoard();
         CellTappedCommand = new Command<GameCell>(OnCellTapped);
         ResetCommand = new Command(OnReset);
         NewGameCommand = new Command(OnNewGame);
+        ReloadCellsFromBoard();
+    }
+
+    /// <summary>Use an existing board (unit tests).</summary>
+    public GameViewModel(Board board)
+    {
+        _board = board;
+        Cells = new ObservableCollection<GameCell>();
+        CellTappedCommand = new Command<GameCell>(OnCellTapped);
+        ResetCommand = new Command(OnReset);
+        NewGameCommand = new Command(OnNewGame);
+        ReloadCellsFromBoard();
     }
 
     public ObservableCollection<GameCell> Cells { get; }
@@ -82,6 +108,23 @@ public class GameViewModel : INotifyPropertyChanged
     public ICommand NewGameCommand { get; }
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    /// <summary>Replace the board when Settings difficulty changes (may change row/column count).</summary>
+    public void RecreateBoardForDimensions(int rows, int columns)
+    {
+        if (rows == _board.RowCount && columns == _board.ColumnCount)
+            return;
+
+        var random = new Random();
+        var moves = BoardDifficultySizes.ScrambleMoveCount(rows, columns);
+        _board = Board.CreateScrambled(rows, columns, moves, random);
+        ReloadCellsFromBoard();
+        _hasGameStarted = false;
+        IsWon = false;
+        _gameStopwatch.Reset();
+        OnPropertyChanged(nameof(IsWon));
+        RefreshElapsedDisplay();
+    }
+
     private void OnCellTapped(GameCell? cell)
     {
         if (cell is null) return;
@@ -120,9 +163,9 @@ public class GameViewModel : INotifyPropertyChanged
         var random = new Random();
         var rows = _board.RowCount;
         var columns = _board.ColumnCount;
-        const int scrambleMoves = 15;
+        var moves = BoardDifficultySizes.ScrambleMoveCount(rows, columns);
 
-        _board = Board.CreateScrambled(rows, columns, scrambleMoves, random);
+        _board = Board.CreateScrambled(rows, columns, moves, random);
         ReloadCellsFromBoard();
         _hasGameStarted = false;
         IsWon = false;

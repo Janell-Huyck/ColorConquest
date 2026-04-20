@@ -210,6 +210,24 @@ public class GameViewModelTests
     }
 
     [Fact]
+    public void TileDisplaySize_DefaultsTo48()
+    {
+        var viewModel = new GameViewModel();
+
+        Assert.Equal(48, viewModel.TileDisplaySize);
+    }
+
+    [Fact]
+    public void SetTileDisplaySize_UpdatesTileDisplaySize()
+    {
+        var viewModel = new GameViewModel();
+
+        viewModel.SetTileDisplaySize(32);
+
+        Assert.Equal(32, viewModel.TileDisplaySize);
+    }
+
+    [Fact]
     public void ShowMoveCount_DefaultsTrue()
     {
         var viewModel = new GameViewModel();
@@ -313,5 +331,39 @@ public class GameViewModelTests
             if (e.PropertyName == nameof(GameCell.IsPrimaryColor))
                 raised++;
         }
+    }
+
+    [Fact]
+    public void Constructor_WithDimensions_CreatesMatchingCellCount()
+    {
+        var viewModel = new GameViewModel(rows: 3, columns: 3);
+
+        Assert.Equal(9, viewModel.Cells.Count);
+        Assert.Equal(3, viewModel.RowCount);
+        Assert.Equal(3, viewModel.ColumnCount);
+    }
+
+    [Fact]
+    public void RecreateBoardForDimensions_WhenSizeChanges_ReplacesCells()
+    {
+        var viewModel = new GameViewModel(rows: 3, columns: 3);
+        Assert.Equal(9, viewModel.Cells.Count);
+
+        viewModel.RecreateBoardForDimensions(5, 5);
+
+        Assert.Equal(25, viewModel.Cells.Count);
+        Assert.Equal(5, viewModel.RowCount);
+        Assert.Equal(5, viewModel.ColumnCount);
+    }
+
+    [Fact]
+    public void RecreateBoardForDimensions_WhenSameSize_DoesNothing()
+    {
+        var viewModel = new GameViewModel(rows: 3, columns: 3);
+        var firstCell = viewModel.Cells[0];
+
+        viewModel.RecreateBoardForDimensions(3, 3);
+
+        Assert.Same(firstCell, viewModel.Cells[0]);
     }
 }

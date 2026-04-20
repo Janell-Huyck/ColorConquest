@@ -12,66 +12,82 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <VerticalStackLayout Padding="20" Spacing="16">
-        <Label Text="Color Conquest"
-               FontSize="24"
-               HorizontalOptions="Center" />
+    <!-- Board area (*) sizes tiles from available space so 9×9 fits phones; ScrollView still helps tiny windows or huge boards. -->
+    <Grid x:Name="PageLayoutGrid"
+          Padding="20"
+          RowSpacing="16"
+          RowDefinitions="Auto,*,Auto">
+        <VerticalStackLayout Grid.Row="0"
+                             Spacing="16">
+            <Label Text="Color Conquest"
+                   FontSize="24"
+                   HorizontalOptions="Center" />
 
-        <HorizontalStackLayout HorizontalOptions="Center"
-                               Spacing="4"
-                               IsVisible="{Binding ShowMoveCount}">
-            <Label Text="Moves:" />
-            <Label Text="{Binding MoveCount}" />
-        </HorizontalStackLayout>
+            <HorizontalStackLayout HorizontalOptions="Center"
+                                   Spacing="4"
+                                   IsVisible="{Binding ShowMoveCount}">
+                <Label Text="Moves:" />
+                <Label Text="{Binding MoveCount}" />
+            </HorizontalStackLayout>
 
-        <HorizontalStackLayout HorizontalOptions="Center"
-                               Spacing="4"
-                               IsVisible="{Binding ShowGameTimer}">
-            <Label Text="Time:" />
-            <Label Text="{Binding ElapsedDisplay}" />
-        </HorizontalStackLayout>
+            <HorizontalStackLayout HorizontalOptions="Center"
+                                   Spacing="4"
+                                   IsVisible="{Binding ShowGameTimer}">
+                <Label Text="Time:" />
+                <Label Text="{Binding ElapsedDisplay}" />
+            </HorizontalStackLayout>
 
-        <Label Text="You win!"
-               HorizontalOptions="Center"
-               FontSize="36"
-               FontAttributes="Bold"
-               TextColor="{AppThemeBinding Light={StaticResource MidnightBlue}, Dark={StaticResource White}}"
-               IsVisible="{Binding IsWon}" />
+            <Label Text="You win!"
+                   HorizontalOptions="Center"
+                   FontSize="36"
+                   FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource MidnightBlue}, Dark={StaticResource White}}"
+                   IsVisible="{Binding IsWon}" />
+        </VerticalStackLayout>
 
-        <CollectionView x:Name="GameGrid"
-                        ItemsSource="{Binding Cells}"
-                        SelectionMode="None"
-                        HorizontalOptions="Center"
-                        VerticalScrollBarVisibility="Never"
-                        HorizontalScrollBarVisibility="Never">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border StrokeThickness="1"
-                            Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
-                            Padding="0"
-                            WidthRequest="48"
-                            HeightRequest="48"
+        <ScrollView x:Name="BoardScrollArea"
+                    Grid.Row="1"
+                    Orientation="Both"
+                    VerticalScrollBarVisibility="Default"
+                    HorizontalScrollBarVisibility="Default">
+            <CollectionView x:Name="GameGrid"
+                            ItemsSource="{Binding Cells}"
+                            SelectionMode="None"
                             HorizontalOptions="Center"
-                            VerticalOptions="Center">
-                        <Border.BackgroundColor>
-                            <Binding Path="IsPrimaryColor" Converter="{StaticResource IsPrimaryToColor}" />
-                        </Border.BackgroundColor>
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer
-                                Command="{Binding Source={x:Reference GamePageRoot}, Path=BindingContext.CellTappedCommand}"
-                                CommandParameter="{Binding .}" />
-                        </Border.GestureRecognizers>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                            VerticalOptions="Start"
+                            VerticalScrollBarVisibility="Never"
+                            HorizontalScrollBarVisibility="Never">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border StrokeThickness="1"
+                                Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                                Padding="0"
+                                WidthRequest="{Binding Source={x:Reference GamePageRoot}, Path=BindingContext.TileDisplaySize}"
+                                HeightRequest="{Binding Source={x:Reference GamePageRoot}, Path=BindingContext.TileDisplaySize}"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center">
+                            <Border.BackgroundColor>
+                                <Binding Path="IsPrimaryColor" Converter="{StaticResource IsPrimaryToColor}" />
+                            </Border.BackgroundColor>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={x:Reference GamePageRoot}, Path=BindingContext.CellTappedCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
 
-        <HorizontalStackLayout HorizontalOptions="Center" Spacing="12">
+        <HorizontalStackLayout Grid.Row="2"
+                               HorizontalOptions="Center"
+                               Spacing="12">
             <Button Text="Reset"
                     Command="{Binding ResetCommand}" />
             <Button Text="New game"
                     Command="{Binding NewGameCommand}" />
         </HorizontalStackLayout>
-    </VerticalStackLayout>
+    </Grid>
 
 </ContentPage>

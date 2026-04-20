@@ -159,8 +159,89 @@
                     </VerticalStackLayout>
                 </Border>
 
+                <Border x:Name="GameplaySectionBorder"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="14">
+                    <VerticalStackLayout Spacing="10">
+                        <Label x:Name="GameplayHeaderLabel"
+                               Text="Gameplay"
+                               FontSize="20"
+                               FontAttributes="Bold" />
+                        <Label x:Name="DifficultyTitleLabel"
+                               Text="Difficulty"
+                               FontSize="16"
+                               FontAttributes="Bold" />
+                        <Label x:Name="DifficultySubtitleLabel"
+                               Text="Tap a row to choose. Easy 3×3, Medium 5×5, Hard 9×9. Applies when you open the Game screen."
+                               LineBreakMode="WordWrap" />
+                        <VerticalStackLayout Spacing="8">
+                            <Border x:Name="DifficultyEasyBorder"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 8"
+                                    Padding="12,10">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnDifficultyEasyTapped" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label x:Name="DifficultyEasyLabel"
+                                           Text="Easy (3×3)"
+                                           VerticalOptions="Center"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label x:Name="DifficultyEasyCheckLabel"
+                                           Grid.Column="1"
+                                           Text="✓"
+                                           FontSize="16"
+                                           VerticalOptions="Center"
+                                           IsVisible="False" />
+                                </Grid>
+                            </Border>
+                            <Border x:Name="DifficultyMediumBorder"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 8"
+                                    Padding="12,10">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnDifficultyMediumTapped" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label x:Name="DifficultyMediumLabel"
+                                           Text="Medium (5×5)"
+                                           VerticalOptions="Center"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label x:Name="DifficultyMediumCheckLabel"
+                                           Grid.Column="1"
+                                           Text="✓"
+                                           FontSize="16"
+                                           VerticalOptions="Center"
+                                           IsVisible="False" />
+                                </Grid>
+                            </Border>
+                            <Border x:Name="DifficultyHardBorder"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 8"
+                                    Padding="12,10">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnDifficultyHardTapped" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label x:Name="DifficultyHardLabel"
+                                           Text="Hard (9×9)"
+                                           VerticalOptions="Center"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label x:Name="DifficultyHardCheckLabel"
+                                           Grid.Column="1"
+                                           Text="✓"
+                                           FontSize="16"
+                                           VerticalOptions="Center"
+                                           IsVisible="False" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
                 <Label x:Name="FooterHintLabel"
-                       Text="More settings (such as board size) coming soon."
+                       Text="Tip: change tile colors under Appearance."
                        HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
         </ScrollView>
