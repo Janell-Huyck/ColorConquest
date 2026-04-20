@@ -34,12 +34,12 @@
                 <Label Text="{Binding ElapsedDisplay}" />
             </HorizontalStackLayout>
 
-            <Label Text="You win!"
-                   HorizontalOptions="Center"
-                   FontSize="36"
-                   FontAttributes="Bold"
-                   TextColor="{AppThemeBinding Light={StaticResource MidnightBlue}, Dark={StaticResource White}}"
-                   IsVisible="{Binding IsWon}" />
+                  <Label Text="{Binding WinMessage}"
+                      HorizontalOptions="Center"
+                      FontSize="36"
+                      FontAttributes="Bold"
+                      TextColor="{AppThemeBinding Light={StaticResource MidnightBlue}, Dark={StaticResource White}}" 
+                      HeightRequest="48"/>
         </VerticalStackLayout>
 
         <ScrollView x:Name="BoardScrollArea"

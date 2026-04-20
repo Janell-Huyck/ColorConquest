@@ -102,7 +102,20 @@ public class GameViewModel : INotifyPropertyChanged
         }
     }
 
-    public bool IsWon { get; private set; }
+    private bool _isWon;
+    public bool IsWon
+    {
+        get => _isWon;
+        private set
+        {
+            if (_isWon == value) return;
+            _isWon = value;
+            OnPropertyChanged(nameof(IsWon));
+            OnPropertyChanged(nameof(WinMessage));
+        }
+    }
+
+    public string WinMessage => IsWon ? "You win!" : " ";
     public ICommand CellTappedCommand { get; }
     public ICommand ResetCommand { get; }
     public ICommand NewGameCommand { get; }
@@ -121,7 +134,6 @@ public class GameViewModel : INotifyPropertyChanged
         _hasGameStarted = false;
         IsWon = false;
         _gameStopwatch.Reset();
-        OnPropertyChanged(nameof(IsWon));
         RefreshElapsedDisplay();
     }
 
@@ -142,7 +154,6 @@ public class GameViewModel : INotifyPropertyChanged
         {
             IsWon = true;
             _gameStopwatch.Stop();
-            OnPropertyChanged(nameof(IsWon));
             RefreshElapsedDisplay();
         }
     }
@@ -154,7 +165,6 @@ public class GameViewModel : INotifyPropertyChanged
         IsWon = false;
         _gameStopwatch.Reset();
         OnPropertyChanged(nameof(MoveCount));
-        OnPropertyChanged(nameof(IsWon));
         RefreshElapsedDisplay();
     }
 
@@ -170,7 +180,6 @@ public class GameViewModel : INotifyPropertyChanged
         _hasGameStarted = false;
         IsWon = false;
         _gameStopwatch.Reset();
-        OnPropertyChanged(nameof(IsWon));
         RefreshElapsedDisplay();
     }
 
