@@ -81,5 +81,34 @@ namespace ColorConquest.Tests.Core.Services
             Assert.Equal(allColors[1].Key, colorPrefs.GetSecondaryColor().Key);
             ResetAll();
         }
+
+        [Fact]
+        public void TileColorPreferences_Handles_Empty_Colors_List()
+        {
+            // Arrange: create a subclass with empty Colors
+            var emptyPrefs = new TileColorPreferences_Empty(prefs);
+            // Act & Assert
+            Assert.Equal(string.Empty, emptyPrefs.GetPrimaryColorKey());
+            Assert.Equal(string.Empty, emptyPrefs.GetSecondaryColorKey());
+        }
+
+        [Fact]
+        public void TileColorPreferences_Handles_One_Color()
+        {
+            var onePrefs = new TileColorPreferences_One(prefs);
+            Assert.Equal("only", onePrefs.GetPrimaryColorKey());
+            Assert.Equal("only", onePrefs.GetSecondaryColorKey());
+        }
+
+        private class TileColorPreferences_Empty : TileColorPreferences
+        {
+            public TileColorPreferences_Empty(ColorConquest.Core.Services.IPreferences p) : base(p) { }
+            protected override IReadOnlyList<TileColorOption> Colors => new List<TileColorOption>();
+        }
+        private class TileColorPreferences_One : TileColorPreferences
+        {
+            public TileColorPreferences_One(ColorConquest.Core.Services.IPreferences p) : base(p) { }
+            protected override IReadOnlyList<TileColorOption> Colors => new List<TileColorOption> { new TileColorOption("only", "Only", "#000000") };
+        }
     }
 }

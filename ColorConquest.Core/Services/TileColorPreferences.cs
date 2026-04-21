@@ -12,7 +12,7 @@ public class TileColorPreferences
     private const string PrimaryColorKey = "tile_primary_color";
     private const string SecondaryColorKey = "tile_secondary_color";
     public event EventHandler? ColorsChanged;
-    private static readonly IReadOnlyList<TileColorOption> Colors = new List<TileColorOption>
+    protected virtual IReadOnlyList<TileColorOption> Colors { get; } = new List<TileColorOption>
     {
         new("blue", "Blue", "#2196F3"),
         new("red", "Red", "#F44336"),
@@ -31,15 +31,19 @@ public class TileColorPreferences
         _preferences = preferences;
     }
 
-    public IReadOnlyList<TileColorOption> GetAvailableColors() => Colors;
+    public virtual IReadOnlyList<TileColorOption> GetAvailableColors() => Colors;
 
     public string GetPrimaryColorKey()
     {
+        if (Colors.Count == 0)
+            return string.Empty;
         var saved = _preferences.Get(PrimaryColorKey, Colors[0].Key);
         return Colors.Any(c => c.Key == saved) ? saved : Colors[0].Key;
     }
     public string GetSecondaryColorKey()
     {
+        if (Colors.Count < 2)
+            return Colors.Count == 1 ? Colors[0].Key : string.Empty;
         var saved = _preferences.Get(SecondaryColorKey, Colors[1].Key);
         return Colors.Any(c => c.Key == saved) ? saved : Colors[1].Key;
     }
@@ -63,9 +67,9 @@ public class TileColorPreferences
         _preferences.Set(SecondaryColorKey, Colors[1].Key); // red
         ColorsChanged?.Invoke(this, EventArgs.Empty);
     }
-    public TileColorOption GetPrimaryColor() => GetByKeySafe(GetPrimaryColorKey(), Colors[0]);
-    public TileColorOption GetSecondaryColor() => GetByKeySafe(GetSecondaryColorKey(), Colors[1]);
+    public TileColorOption GetPrimaryColor() => GetByKeySafe(GetPrimaryColorKey(), Colors.Count > 0 ? Colors[0] : null);
+    public TileColorOption GetSecondaryColor() => GetByKeySafe(GetSecondaryColorKey(), Colors.Count > 1 ? Colors[1] : (Colors.Count > 0 ? Colors[0] : null));
 
-    private static TileColorOption GetByKeySafe(string key, TileColorOption fallback)
-        => Colors.FirstOrDefault(c => c.Key == key) ?? fallback;
+    private TileColorOption GetByKeySafe(string key, TileColorOption? fallback)
+        => Colors.FirstOrDefault(c => c.Key == key) ?? fallback ?? new TileColorOption("", "", "#000000");
 }

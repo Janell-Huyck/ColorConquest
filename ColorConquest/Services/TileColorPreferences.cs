@@ -38,6 +38,7 @@ public class TileColorPreferences
 
     public IReadOnlyList<TileColorOption> GetAvailableColors() => Colors;
 
+    #pragma warning disable CS8603 // Possible null reference return
     public string GetPrimaryColorKey()
     {
         var saved = _preferences.Get(PrimaryColorKey, DefaultPrimaryKey);
@@ -49,6 +50,7 @@ public class TileColorPreferences
         var saved = _preferences.Get(SecondaryColorKey, DefaultSecondaryKey);
         return Colors.Any(c => c.Key == saved) ? saved : DefaultSecondaryKey;
     }
+    #pragma warning restore CS8603 // Possible null reference return
 
     public TileColorOption GetPrimaryColor() => GetByKey(GetPrimaryColorKey());
     public TileColorOption GetSecondaryColor() => GetByKey(GetSecondaryColorKey());
@@ -69,10 +71,16 @@ public class TileColorPreferences
 
     public void Reset()
     {
-        _preferences.Set(PrimaryColorKey, Colors[0].Key);
-        _preferences.Set(SecondaryColorKey, Colors[1].Key);
+        if (Colors.Count > 0)
+            _preferences.Set(PrimaryColorKey, Colors[0].Key);
+        if (Colors.Count > 1)
+            _preferences.Set(SecondaryColorKey, Colors[1].Key);
         ColorsChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    private static TileColorOption GetByKey(string key) => Colors.First(c => c.Key == key);
+    private static TileColorOption GetByKey(string key)
+    {
+        var found = Colors.FirstOrDefault(c => c.Key == key);
+        return found ?? (Colors.Count > 0 ? Colors[0] : new TileColorOption("", "", "#000000"));
+    }
 }
