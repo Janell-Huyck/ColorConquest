@@ -67,9 +67,22 @@ public class TileColorPreferences
         _preferences.Set(SecondaryColorKey, Colors[1].Key); // red
         ColorsChanged?.Invoke(this, EventArgs.Empty);
     }
-    public TileColorOption GetPrimaryColor() => GetByKeySafe(GetPrimaryColorKey(), Colors.Count > 0 ? Colors[0] : null);
-    public TileColorOption GetSecondaryColor() => GetByKeySafe(GetSecondaryColorKey(), Colors.Count > 1 ? Colors[1] : (Colors.Count > 0 ? Colors[0] : null));
+    public TileColorOption GetPrimaryColor()
+    {
+        if (Colors.Count == 0)
+            return new TileColorOption("", "", "#000000");
+        return GetByKeySafe(GetPrimaryColorKey(), Colors[0]);
+    }
 
-    private TileColorOption GetByKeySafe(string key, TileColorOption? fallback)
-        => Colors.FirstOrDefault(c => c.Key == key) ?? fallback ?? new TileColorOption("", "", "#000000");
+    public TileColorOption GetSecondaryColor()
+    {
+        if (Colors.Count == 0)
+            return new TileColorOption("", "", "#000000");
+        if (Colors.Count == 1)
+            return Colors[0];
+        return GetByKeySafe(GetSecondaryColorKey(), Colors[1]);
+    }
+
+    private TileColorOption GetByKeySafe(string key, TileColorOption fallback)
+        => Colors.FirstOrDefault(c => c.Key == key) ?? fallback;
 }

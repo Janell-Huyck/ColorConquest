@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using ColorConquest.Core.ViewModels;
 using ColorConquest.Services;
-using ColorConquest.Core.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace ColorConquest.Views;
@@ -29,7 +28,7 @@ public partial class GamePage : ContentPage
         BoardScrollArea.SizeChanged += OnBoardScrollAreaSizeChanged;
         PageLayoutGrid.SizeChanged += OnPageLayoutGridSizeChanged;
         ApplyGameGridLayout();
-        ThemeVm = App.Services.GetService(typeof(ThemeViewModel)) as ThemeViewModel
+        ThemeVm = (App.Services!).GetService(typeof(ThemeViewModel)) as ThemeViewModel
             ?? throw new InvalidOperationException("ThemeViewModel not found in DI container.");
         WeakReferenceMessenger.Default.Register<ThemeChangedMessage>(this, (r, m) => ApplyTheme(m.IsDarkTheme));
         ApplyTheme(ThemeVm.IsDarkTheme);

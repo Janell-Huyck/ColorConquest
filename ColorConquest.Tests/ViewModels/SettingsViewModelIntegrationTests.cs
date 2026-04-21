@@ -1,7 +1,6 @@
 using ColorConquest.Core.Services;
 using ColorConquest.Core;
 using ColorConquest.Core.ViewModels;
-using ColorConquest.Core;
 using Xunit;
 
 namespace ColorConquest.Tests.ViewModels;

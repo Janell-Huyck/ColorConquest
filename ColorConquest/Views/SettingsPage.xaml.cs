@@ -5,7 +5,6 @@ using ColorConquest.Core;
 using ColorConquest.Core.Services;
 using Microsoft.Maui.Controls.Shapes;
 using ColorConquest.Services;
-using ColorConquest.Core.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace ColorConquest.Views;
@@ -22,7 +21,7 @@ public partial class SettingsPage : ContentPage
     }
 
     // Parameterless constructor for Shell navigation (resolves ViewModel from DI)
-    public SettingsPage() : this(App.Services.GetService(typeof(SettingsViewModel)) as SettingsViewModel
+    public SettingsPage() : this((App.Services!).GetService(typeof(SettingsViewModel)) as SettingsViewModel
         ?? throw new InvalidOperationException("SettingsViewModel not found in DI container."))
     {
     }
@@ -96,7 +95,7 @@ public partial class SettingsPage : ContentPage
     {
         InitializeComponent();
         BindingContext = viewModel;
-        ThemeVm = App.Services.GetService(typeof(ThemeViewModel)) as ThemeViewModel
+        ThemeVm = (App.Services!).GetService(typeof(ThemeViewModel)) as ThemeViewModel
             ?? throw new InvalidOperationException("ThemeViewModel not found in DI container.");
         // Listen for theme changes via messenger
         WeakReferenceMessenger.Default.Register<ThemeChangedMessage>(this, (r, m) => ApplyTheme(m.IsDarkTheme));

@@ -52,8 +52,7 @@ public partial class SettingsViewModel : ObservableObject
 		}
 	}
 
-	public ICommand SetBoardSizeCommand { get; }
-	public IRelayCommand ResetToDefaultsCommand { get; }
+
 
 	// RelayCommand to reset both theme and all other settings
 	[RelayCommand]
@@ -94,8 +93,6 @@ public partial class SettingsViewModel : ObservableObject
 			new BoardSizeOption(BoardSize.Hard, "Hard 9×9", SelectedBoardSize == BoardSize.Hard)
 		};
 
-		SetBoardSizeCommand = new RelayCommand<BoardSize>(SetBoardSize);
-		ResetToDefaultsCommand = new RelayCommand(ResetToDefaults);
 		UpdateBoardSizeSelections();
 	}
 
@@ -114,6 +111,7 @@ public partial class SettingsViewModel : ObservableObject
 			SetPrimaryColor(option);
 	}
 
+	[RelayCommand]
 	private void SetBoardSize(BoardSize size)
 	{
 		if (SelectedBoardSize != size)
@@ -124,6 +122,7 @@ public partial class SettingsViewModel : ObservableObject
 		}
 	}
 
+	[RelayCommand]
 	private void ResetToDefaults()
 	{
 		// Theme reset is handled by ThemeViewModel. Do not reset theme here.
