@@ -1,4 +1,4 @@
-// All using directives must be at the top
+
 using ColorConquest.Core.ViewModels;
 using ColorConquest.Core;
 using ColorConquest.Core.Services;
@@ -11,7 +11,11 @@ public partial class SettingsPage : ContentPage
 {
     private SettingsViewModel ViewModel => (SettingsViewModel)BindingContext;
 
-
+    // Parameterless constructor for Shell navigation (resolves ViewModel from DI)
+    public SettingsPage() : this(App.Services.GetService(typeof(SettingsViewModel)) as SettingsViewModel
+        ?? throw new InvalidOperationException("SettingsViewModel not found in DI container."))
+    {
+    }
 
     // Restored: Applies theming and layout to the settings page UI
     private void ApplyForcedThemeToUi()
@@ -77,23 +81,66 @@ public partial class SettingsPage : ContentPage
         // All palette and selection UI is now handled by ViewModel and XAML bindings.
     }
 
-    public SettingsPage()
+    public SettingsPage(SettingsViewModel viewModel)
     {
         InitializeComponent();
-        BindingContext = new SettingsViewModel();
+        BindingContext = viewModel;
+        // Subscribe to ViewModel property changes for immediate theme update
+        if (viewModel != null)
+            viewModel.PropertyChanged += OnViewModelPropertyChanged;
         ApplyForcedThemeToUi();
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(SettingsViewModel.IsDarkTheme))
+        {
+            // Update the app-wide theme immediately
+            if (BindingContext is SettingsViewModel svm)
+            {
+                var appTheme = svm.IsDarkTheme
+                    ? ThemeChrome.ToAppTheme(ColorConquest.Core.Services.UserTheme.Dark)
+                    : ThemeChrome.ToAppTheme(ColorConquest.Core.Services.UserTheme.Light);
+                if (Application.Current is not null)
+                    Application.Current.UserAppTheme = appTheme;
+            }
+            ApplyForcedThemeToUi();
+        }
     }
 
     protected override void OnAppearing()
     {
+        if (BindingContext == null)
+            BindingContext = App.Services.GetService<SettingsViewModel>();
+        // No ThemeChanged event in new ViewModel
         base.OnAppearing();
+        // Always sync ViewModel and toggle with the current app theme
+        var isDark = ThemeChrome.IsDarkFromPreferences();
+        if (BindingContext is ColorConquest.Core.ViewModels.SettingsViewModel svm)
+        {
+            svm.IsDarkTheme = isDark;
+            // Sync app theme to ViewModel
+            Application.Current.UserAppTheme = ThemeChrome.ToAppTheme(isDark ? ColorConquest.Core.Services.UserTheme.Dark : ColorConquest.Core.Services.UserTheme.Light);
+        }
+        if (ThemeSwitch != null)
+            ThemeSwitch.IsToggled = isDark;
         ApplyForcedThemeToUi();
         if (Application.Current is not null)
             Application.Current.RequestedThemeChanged += OnAppRequestedThemeChanged;
     }
+    private void OnThemeChanged(object? sender, bool isDark)
+    {
+        if (Application.Current is not null)
+            Application.Current.UserAppTheme = ThemeChrome.ToAppTheme(isDark ? ColorConquest.Core.Services.UserTheme.Dark : ColorConquest.Core.Services.UserTheme.Light);
+        if (ThemeSwitch != null)
+            ThemeSwitch.IsToggled = isDark;
+    }
 
     protected override void OnDisappearing()
     {
+        // Unsubscribe from ViewModel property changes
+        if (BindingContext is SettingsViewModel vm)
+            vm.PropertyChanged -= OnViewModelPropertyChanged;
         if (Application.Current is not null)
             Application.Current.RequestedThemeChanged -= OnAppRequestedThemeChanged;
         base.OnDisappearing();

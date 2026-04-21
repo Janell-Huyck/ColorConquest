@@ -15,8 +15,8 @@ public class IsPrimaryToColorConverter : IValueConverter
             return Colors.Gray;
 
         return isPrimary
-            ? Color.FromArgb(TileColorPreferences.GetPrimaryColor().Hex)
-            : Color.FromArgb(TileColorPreferences.GetSecondaryColor().Hex);
+            ? Color.FromArgb(AppServices.TileColorPreferences.GetPrimaryColor().Hex)
+            : Color.FromArgb(AppServices.TileColorPreferences.GetSecondaryColor().Hex);
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>

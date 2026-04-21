@@ -100,7 +100,7 @@
                                         HeightRequest="40"
                                         StrokeThickness="1"
                                         VerticalOptions="Center">
-                                    <BoxView x:Name="PrimaryTilePreview" />
+                                    <BoxView x:Name="PrimaryTilePreview" Color="{Binding SelectedPrimaryColor.ColorValue}" />
                                 </Border>
                                 <Border x:Name="PrimaryPickerRowBorder"
                                         Grid.Column="1"
@@ -108,7 +108,7 @@
                                         StrokeShape="RoundRectangle 8"
                                         Padding="12,10">
                                     <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SetPrimaryColorCommand}" CommandParameter="{Binding SelectedPrimaryColor}" />
+                                        <TapGestureRecognizer Command="{Binding ShowColorPaletteCommand}" CommandParameter="Primary" />
                                     </Border.GestureRecognizers>
                                     <Grid ColumnDefinitions="*,Auto">
                                              <Label x:Name="PrimaryColorNameLabel"
@@ -136,7 +136,7 @@
                                         HeightRequest="40"
                                         StrokeThickness="1"
                                         VerticalOptions="Center">
-                                    <BoxView x:Name="SecondaryTilePreview" />
+                                    <BoxView x:Name="SecondaryTilePreview" Color="{Binding SelectedSecondaryColor.ColorValue}" />
                                 </Border>
                                 <Border x:Name="SecondaryPickerRowBorder"
                                         Grid.Column="1"
@@ -144,7 +144,7 @@
                                         StrokeShape="RoundRectangle 8"
                                         Padding="12,10">
                                     <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SetSecondaryColorCommand}" CommandParameter="{Binding SelectedSecondaryColor}" />
+                                        <TapGestureRecognizer Command="{Binding ShowColorPaletteCommand}" CommandParameter="Secondary" />
                                     </Border.GestureRecognizers>
                                     <Grid ColumnDefinitions="*,Auto">
                                              <Label x:Name="SecondaryColorNameLabel"
@@ -188,8 +188,9 @@
                                         </Border.GestureRecognizers>
                                         <Grid ColumnDefinitions="*,Auto">
                                             <Label Text="{Binding Label}" VerticalOptions="Center" LineBreakMode="TailTruncation" />
-                                            <Label Grid.Column="1" Text="✓" FontSize="16" VerticalOptions="Center"
-                                                   IsVisible="{Binding BindingContext.SelectedBoardSize, Source={x:Reference Name=SettingsRootGrid}, Converter={StaticResource BoardSizeToBoolConverter}, ConverterParameter={Binding Size}}" />
+                                              <Label Grid.Column="1" Text="✓" FontSize="16" VerticalOptions="Center"
+                                                  IsVisible="{Binding IsSelected}"
+                                                  TextColor="Green" />
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -201,13 +202,19 @@
                 <Label x:Name="FooterHintLabel"
                        Text="Tip: change tile colors under Appearance."
                        HorizontalTextAlignment="Center" />
+                    <Button Text="Reset to Default"
+                        Command="{Binding ResetToDefaultsCommand}"
+                        BackgroundColor="{DynamicResource Primary}" 
+                        TextColor="White"
+                        Margin="0,24,0,0"
+                        HorizontalOptions="Center"/>
             </VerticalStackLayout>
         </ScrollView>
 
         <!-- Modal color palette (Picker is unreliable on some Mac Catalyst builds). -->
         <!-- Scrim is the overlay Grid's BackgroundColor — BoxView scrim often fails to paint/fill on Mac Catalyst. -->
-        <Grid x:Name="ColorPaletteOverlay"
-              IsVisible="False"
+          <Grid x:Name="ColorPaletteOverlay"
+              IsVisible="{Binding IsColorPaletteVisible}"
               InputTransparent="False"
               HorizontalOptions="Fill"
               VerticalOptions="Fill">
@@ -230,10 +237,26 @@
                            Text="Tap a swatch. Dark colors are in the first row; light colors follow."
                            FontSize="13"
                            LineBreakMode="WordWrap" />
-                    <Grid x:Name="PaletteSwatchesGrid"
-                          ColumnSpacing="8"
-                          RowSpacing="8" />
-                        <Button Text="Cancel" />
+                    <CollectionView x:Name="PaletteSwatchesGrid"
+                                   ItemsSource="{Binding AvailableColors}"
+                                   SelectionMode="None"
+                                   ItemsLayout="VerticalGrid, 4">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame Padding="0" Margin="4" HasShadow="False" BorderColor="Gray" CornerRadius="8" HeightRequest="48" WidthRequest="48">
+                                    <Grid HeightRequest="40" WidthRequest="40">
+                                        <BoxView Color="{Binding ColorValue}" HeightRequest="32" WidthRequest="32" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding BindingContext.SelectPaletteColorCommand, Source={x:Reference Name=PaletteSwatchesGrid}}"
+                                                CommandParameter="{Binding .}" />
+                                        </Grid.GestureRecognizers>
+                                    </Grid>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <Button Text="Cancel" Command="{Binding HideColorPaletteCommand}" />
                 </VerticalStackLayout>
             </Border>
         </Grid>

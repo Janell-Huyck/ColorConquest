@@ -1,15 +1,25 @@
 namespace ColorConquest.Services;
 
-public static class GameDisplayPreferences
+public class GameDisplayPreferences
 {
     private const string ShowMoveCountKey = "show_move_count";
     private const string ShowGameTimerKey = "show_game_timer";
 
-    public static bool GetShowMoveCount() => Preferences.Default.Get(ShowMoveCountKey, true);
+    private readonly ColorConquest.Core.Services.IPreferences _preferences;
 
-    public static void SetShowMoveCount(bool value) => Preferences.Default.Set(ShowMoveCountKey, value);
+    public GameDisplayPreferences(ColorConquest.Core.Services.IPreferences preferences)
+    {
+        _preferences = preferences;
+    }
 
-    public static bool GetShowGameTimer() => Preferences.Default.Get(ShowGameTimerKey, true);
+    public bool GetShowMoveCount() => _preferences.Get(ShowMoveCountKey, "true") == "true";
+    public void SetShowMoveCount(bool value) => _preferences.Set(ShowMoveCountKey, value ? "true" : "false");
+    public bool GetShowGameTimer() => _preferences.Get(ShowGameTimerKey, "true") == "true";
+    public void SetShowGameTimer(bool value) => _preferences.Set(ShowGameTimerKey, value ? "true" : "false");
 
-    public static void SetShowGameTimer(bool value) => Preferences.Default.Set(ShowGameTimerKey, value);
+    public void Reset()
+    {
+        _preferences.Set(ShowMoveCountKey, "true");
+        _preferences.Set(ShowGameTimerKey, "true");
+    }
 }

@@ -4,11 +4,13 @@ namespace ColorConquest
 {
     public partial class App : Application
     {
-        public App()
+        public static IServiceProvider Services { get; private set; }
+
+        public App(IServiceProvider services)
         {
             InitializeComponent();
-            UserAppTheme = ThemePreferences.GetSavedTheme();
-
+            Services = services;
+            UserAppTheme = ThemeChrome.ToAppTheme(AppServices.ThemePreferences.GetSavedTheme());
             MainPage = new AppShell();
             ThemeChrome.ApplyToApplication();
         }

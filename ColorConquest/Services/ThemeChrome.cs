@@ -1,3 +1,5 @@
+using ColorConquest.Core.Services;
+using Microsoft.Maui.ApplicationModel;
 namespace ColorConquest.Services;
 
 /// <summary>
@@ -7,11 +9,13 @@ namespace ColorConquest.Services;
 /// </summary>
 public static class ThemeChrome
 {
+    public static AppTheme ToAppTheme(UserTheme userTheme) => userTheme == UserTheme.Dark ? AppTheme.Dark : AppTheme.Light;
+    public static UserTheme ToUserTheme(AppTheme appTheme) => appTheme == AppTheme.Dark ? UserTheme.Dark : UserTheme.Light;
     private static readonly Color LightPage = Colors.White;
     private static readonly Color DarkPage = Color.FromArgb("#1F1F1F");
     private static readonly Color FlyoutLight = Colors.White;
 
-    public static bool IsDarkFromPreferences() => ThemePreferences.GetSavedTheme() == AppTheme.Dark;
+    public static bool IsDarkFromPreferences() => AppServices.ThemePreferences.GetSavedTheme() == UserTheme.Dark;
 
     /// <summary>Shared page/card surface (same value Shell uses behind content in dark mode).</summary>
     public static Color Surface(bool dark) => dark ? DarkPage : LightPage;

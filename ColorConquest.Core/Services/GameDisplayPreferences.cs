@@ -1,9 +1,25 @@
 namespace ColorConquest.Core.Services;
 
-public static class GameDisplayPreferences
+public class GameDisplayPreferences
 {
-    public static bool GetShowMoveCount() => true; // TODO: Implement persistent storage
-    public static void SetShowMoveCount(bool value) { /* TODO: Implement persistent storage */ }
-    public static bool GetShowGameTimer() => true; // TODO: Implement persistent storage
-    public static void SetShowGameTimer(bool value) { /* TODO: Implement persistent storage */ }
+    private const string ShowMoveCountKey = "show_move_count";
+    private const string ShowGameTimerKey = "show_game_timer";
+
+    private readonly IPreferences _preferences;
+
+    public GameDisplayPreferences(IPreferences preferences)
+    {
+        _preferences = preferences;
+    }
+
+    public bool GetShowMoveCount() => _preferences.Get(ShowMoveCountKey, "true") == "true";
+    public void SetShowMoveCount(bool value) => _preferences.Set(ShowMoveCountKey, value ? "true" : "false");
+    public bool GetShowGameTimer() => _preferences.Get(ShowGameTimerKey, "true") == "true";
+    public void SetShowGameTimer(bool value) => _preferences.Set(ShowGameTimerKey, value ? "true" : "false");
+
+    public void Reset()
+    {
+        _preferences.Set(ShowMoveCountKey, "true");
+        _preferences.Set(ShowGameTimerKey, "true");
+    }
 }

@@ -11,14 +11,13 @@ public partial class GamePage : ContentPage
     private const double MaxTileSize = 48;
 
     private readonly GameViewModel _viewModel;
-    private bool _elapsedTickerActive;
     private int _appliedRows;
     private int _appliedColumns;
 
     public GamePage()
     {
         InitializeComponent();
-        var (rows, columns) = GameBoardPreferences.GetBoardDimensions();
+        var (rows, columns) = AppServices.GameBoardPreferences.GetBoardDimensions();
         _viewModel = new GameViewModel(rows, columns);
         _appliedRows = rows;
         _appliedColumns = columns;
@@ -79,7 +78,7 @@ public partial class GamePage : ContentPage
         _viewModel.PropertyChanged -= OnGameViewModelPropertyChanged;
         _viewModel.PropertyChanged += OnGameViewModelPropertyChanged;
 
-        var (rows, columns) = GameBoardPreferences.GetBoardDimensions();
+        var (rows, columns) = AppServices.GameBoardPreferences.GetBoardDimensions();
         if (rows != _appliedRows || columns != _appliedColumns)
         {
             _viewModel.RecreateBoardForDimensions(rows, columns);
@@ -88,16 +87,28 @@ public partial class GamePage : ContentPage
             ApplyGameGridLayout();
         }
 
-        GameSessionSnapshot.ReportMoveCount(_viewModel.MoveCount);
+        // Always reload all settings from preferences/services
+        _viewModel.SetShowMoveCount(AppServices.GameDisplayPreferences.GetShowMoveCount());
+        _viewModel.SetShowGameTimer(AppServices.GameDisplayPreferences.GetShowGameTimer());
 
-        _viewModel.SetShowMoveCount(GameDisplayPreferences.GetShowMoveCount());
-        _viewModel.SetShowGameTimer(GameDisplayPreferences.GetShowGameTimer());
-        _viewModel.RefreshElapsedDisplay();
+        // Reload colors from preferences
+        var primary = AppServices.TileColorPreferences.GetPrimaryColor();
+        var secondary = AppServices.TileColorPreferences.GetSecondaryColor();
+        if (primary != null)
+            _viewModel.RefreshThemeDependentVisuals(); // update visuals for new colors
+        // If your GameViewModel exposes SelectedPrimaryColor/SelectedSecondaryColor, set them here
+        // _viewModel.SelectedPrimaryColor = primary;
+        // _viewModel.SelectedSecondaryColor = secondary;
+
+        // Reload theme if needed
         _viewModel.OnThemeChanged();
         _viewModel.OnColorsChanged();
+
+        GameSessionSnapshot.ReportMoveCount(_viewModel.MoveCount);
+
         if (Application.Current is not null)
             Application.Current.RequestedThemeChanged += OnRequestedThemeChanged;
-        TileColorPreferences.ColorsChanged += OnColorsChanged;
+        AppServices.TileColorPreferences.ColorsChanged += OnColorsChanged;
 
         _viewModel.StartTimer();
 
@@ -110,7 +121,7 @@ public partial class GamePage : ContentPage
         _viewModel.StopTimer();
         if (Application.Current is not null)
             Application.Current.RequestedThemeChanged -= OnRequestedThemeChanged;
-        TileColorPreferences.ColorsChanged -= OnColorsChanged;
+        AppServices.TileColorPreferences.ColorsChanged -= OnColorsChanged;
         base.OnDisappearing();
     }
 

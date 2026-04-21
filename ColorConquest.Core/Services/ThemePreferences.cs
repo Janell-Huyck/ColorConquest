@@ -2,8 +2,29 @@ namespace ColorConquest.Core.Services;
 
 public enum UserTheme { Light, Dark }
 
-public static class ThemePreferences
+public class ThemePreferences
 {
-    public static UserTheme GetSavedTheme() => UserTheme.Light; // TODO: Implement persistent storage
-    public static void SaveTheme(UserTheme theme) { /* TODO: Implement persistent storage */ }
+    private const string ThemeKey = "theme_preference";
+    private const string LightValue = "light";
+    private const string DarkValue = "dark";
+
+    private readonly IPreferences _preferences;
+
+    public ThemePreferences(IPreferences preferences)
+    {
+        _preferences = preferences;
+    }
+
+    public UserTheme GetSavedTheme()
+    {
+        var value = _preferences.Get(ThemeKey, LightValue);
+        return value == DarkValue ? UserTheme.Dark : UserTheme.Light;
+    }
+
+    public void SaveTheme(UserTheme theme)
+    {
+        _preferences.Set(ThemeKey, theme == UserTheme.Dark ? DarkValue : LightValue);
+    }
+
+    public void Reset() => _preferences.Set(ThemeKey, LightValue);
 }

@@ -2,17 +2,24 @@ using ColorConquest.Core;
 
 namespace ColorConquest.Services;
 
-public static class GameBoardPreferences
+public class GameBoardPreferences
 {
     private const string BoardSizeKey = "board_size";
     private const string EasyValue = "easy";
     private const string MediumValue = "medium";
     private const string HardValue = "hard";
 
-    public static BoardSize GetBoardSize()
+    private readonly ColorConquest.Core.Services.IPreferences _preferences;
+
+    public GameBoardPreferences(ColorConquest.Core.Services.IPreferences preferences)
     {
-        var saved = Preferences.Default.Get(BoardSizeKey, MediumValue);
-        return saved switch
+        _preferences = preferences;
+    }
+
+    public BoardSize GetBoardSize()
+    {
+        var value = _preferences.Get(BoardSizeKey, MediumValue);
+        return value switch
         {
             EasyValue => BoardSize.Easy,
             HardValue => BoardSize.Hard,
@@ -20,7 +27,7 @@ public static class GameBoardPreferences
         };
     }
 
-    public static void SetBoardSize(BoardSize boardSize)
+    public void SetBoardSize(BoardSize boardSize)
     {
         var value = boardSize switch
         {
@@ -28,9 +35,9 @@ public static class GameBoardPreferences
             BoardSize.Hard => HardValue,
             _ => MediumValue
         };
-        Preferences.Default.Set(BoardSizeKey, value);
+        _preferences.Set(BoardSizeKey, value);
     }
 
-    public static (int Rows, int Columns) GetBoardDimensions() =>
-        BoardSizeExtensions.GetDimensions(GetBoardSize());
+    public (int Rows, int Columns) GetBoardDimensions() => BoardSizeExtensions.GetDimensions(GetBoardSize());
+    public void Reset() => _preferences.Set(BoardSizeKey, MediumValue);
 }

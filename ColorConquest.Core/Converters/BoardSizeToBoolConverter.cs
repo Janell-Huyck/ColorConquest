@@ -3,7 +3,7 @@ using System.Globalization;
 using Microsoft.Maui.Controls;
 using ColorConquest.Core;
 
-namespace ColorConquest.Converters
+namespace ColorConquest.Core.Converters
 {
     public class BoardSizeToBoolConverter : IValueConverter
     {

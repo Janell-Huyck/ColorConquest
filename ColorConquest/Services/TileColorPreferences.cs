@@ -2,7 +2,7 @@ namespace ColorConquest.Services;
 
 public sealed record TileColorOption(string Key, string Name, string Hex);
 
-public static class TileColorPreferences
+public class TileColorPreferences
 {
     private const string PrimaryColorKey = "tile_primary_color";
     private const string SecondaryColorKey = "tile_secondary_color";
@@ -27,37 +27,51 @@ public static class TileColorPreferences
         new("light-pink", "Light - Pink", "#FDA4AF")
     };
 
-    public static event EventHandler? ColorsChanged;
+    public event EventHandler? ColorsChanged;
 
-    public static IReadOnlyList<TileColorOption> GetAvailableColors() => Colors;
+    private readonly ColorConquest.Core.Services.IPreferences _preferences;
 
-    public static string GetPrimaryColorKey()
+    public TileColorPreferences(ColorConquest.Core.Services.IPreferences preferences)
     {
-        var saved = Preferences.Default.Get(PrimaryColorKey, DefaultPrimaryKey);
+        _preferences = preferences;
+    }
+
+    public IReadOnlyList<TileColorOption> GetAvailableColors() => Colors;
+
+    public string GetPrimaryColorKey()
+    {
+        var saved = _preferences.Get(PrimaryColorKey, DefaultPrimaryKey);
         return Colors.Any(c => c.Key == saved) ? saved : DefaultPrimaryKey;
     }
 
-    public static string GetSecondaryColorKey()
+    public string GetSecondaryColorKey()
     {
-        var saved = Preferences.Default.Get(SecondaryColorKey, DefaultSecondaryKey);
+        var saved = _preferences.Get(SecondaryColorKey, DefaultSecondaryKey);
         return Colors.Any(c => c.Key == saved) ? saved : DefaultSecondaryKey;
     }
 
-    public static TileColorOption GetPrimaryColor() => GetByKey(GetPrimaryColorKey());
-    public static TileColorOption GetSecondaryColor() => GetByKey(GetSecondaryColorKey());
+    public TileColorOption GetPrimaryColor() => GetByKey(GetPrimaryColorKey());
+    public TileColorOption GetSecondaryColor() => GetByKey(GetSecondaryColorKey());
 
-    public static void SetPrimaryColorKey(string key)
+    public void SetPrimaryColorKey(string key)
     {
         var normalized = Colors.Any(c => c.Key == key) ? key : DefaultPrimaryKey;
-        Preferences.Default.Set(PrimaryColorKey, normalized);
-        ColorsChanged?.Invoke(null, EventArgs.Empty);
+        _preferences.Set(PrimaryColorKey, normalized);
+        ColorsChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    public static void SetSecondaryColorKey(string key)
+    public void SetSecondaryColorKey(string key)
     {
         var normalized = Colors.Any(c => c.Key == key) ? key : DefaultSecondaryKey;
-        Preferences.Default.Set(SecondaryColorKey, normalized);
-        ColorsChanged?.Invoke(null, EventArgs.Empty);
+        _preferences.Set(SecondaryColorKey, normalized);
+        ColorsChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void Reset()
+    {
+        _preferences.Set(PrimaryColorKey, Colors[0].Key);
+        _preferences.Set(SecondaryColorKey, Colors[1].Key);
+        ColorsChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private static TileColorOption GetByKey(string key) => Colors.First(c => c.Key == key);

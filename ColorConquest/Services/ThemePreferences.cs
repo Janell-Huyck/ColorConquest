@@ -1,20 +1,29 @@
 namespace ColorConquest.Services;
 
-public static class ThemePreferences
+public class ThemePreferences
 {
     private const string ThemePreferenceKey = "theme_preference";
     private const string LightThemeValue = "light";
     private const string DarkThemeValue = "dark";
 
-    public static AppTheme GetSavedTheme()
+    private readonly ColorConquest.Core.Services.IPreferences _preferences;
+
+    public ThemePreferences(ColorConquest.Core.Services.IPreferences preferences)
     {
-        var savedTheme = Preferences.Default.Get(ThemePreferenceKey, LightThemeValue);
+        _preferences = preferences;
+    }
+
+    public AppTheme GetSavedTheme()
+    {
+        var savedTheme = _preferences.Get(ThemePreferenceKey, LightThemeValue);
         return savedTheme == LightThemeValue ? AppTheme.Light : AppTheme.Dark;
     }
 
-    public static void SaveTheme(AppTheme theme)
+    public void SaveTheme(AppTheme theme)
     {
         var value = theme == AppTheme.Light ? LightThemeValue : DarkThemeValue;
-        Preferences.Default.Set(ThemePreferenceKey, value);
+        _preferences.Set(ThemePreferenceKey, value);
     }
+
+    public void Reset() => _preferences.Set(ThemePreferenceKey, LightThemeValue);
 }
