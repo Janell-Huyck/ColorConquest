@@ -14,14 +14,14 @@ public class TileColorPreferences
     public event EventHandler? ColorsChanged;
     protected virtual IReadOnlyList<TileColorOption> Colors { get; } = new List<TileColorOption>
     {
-        new("blue", "Blue", "#2196F3"),
-        new("red", "Red", "#F44336"),
-        new("green", "Green", "#4CAF50"),
-        new("yellow", "Yellow", "#FFEB3B"),
-        new("purple", "Purple", "#9C27B0"),
-        new("orange", "Orange", "#FF9800"),
-        new("teal", "Teal", "#009688"),
-        new("pink", "Pink", "#E91E63")
+        new("blue", "Blue", "#1976D2"),
+        new("red", "Red", "#D32F2F"),
+        new("yellow", "Yellow", "#FFC107"),
+        new("purple", "Purple", "#8E24AA"),
+        new("orange", "Orange", "#F57C00"),
+        new("lime", "Lime", "#C6FF00"),
+        new("pink", "Pink", "#EC407A"),
+        new("brown", "Brown", "#795548")
     };
 
     private readonly IPreferences _preferences;

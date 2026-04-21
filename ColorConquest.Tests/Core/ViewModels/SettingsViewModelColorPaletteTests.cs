@@ -9,11 +9,13 @@ namespace ColorConquest.Tests.Core.ViewModels
     {
         private SettingsViewModel CreateVm()
         {
-            var theme = new ThemePreferences(new InMemoryPreferences());
-            var board = new GameBoardPreferences(new InMemoryPreferences());
-            var display = new GameDisplayPreferences(new InMemoryPreferences());
-            var tile = new TileColorPreferences(new InMemoryPreferences());
-            return new SettingsViewModel(theme, board, display, tile);
+            var mem = new InMemoryPreferences();
+            var theme = new ThemePreferences(mem);
+            var board = new GameBoardPreferences(mem);
+            var display = new GameDisplayPreferences(mem);
+            var tile = new TileColorPreferences(mem);
+            var themeVm = new ThemeViewModel(theme);
+            return new SettingsViewModel(theme, board, display, tile, themeVm);
         }
 
         [Fact]

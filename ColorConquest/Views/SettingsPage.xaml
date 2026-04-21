@@ -41,7 +41,7 @@
                                 <Switch x:Name="ThemeSwitch"
                                     Grid.Column="1"
                                     VerticalOptions="Center"
-                                    IsToggled="{Binding IsDarkTheme, Mode=TwoWay}" />
+                                    Toggled="ThemeSwitch_Toggled" />
                         </Grid>
 
                         <Grid ColumnDefinitions="*,Auto"
@@ -202,12 +202,21 @@
                 <Label x:Name="FooterHintLabel"
                        Text="Tip: change tile colors under Appearance."
                        HorizontalTextAlignment="Center" />
+                <Grid ColumnDefinitions="*,*" Margin="0,24,0,0">
                     <Button Text="Reset to Default"
-                        Command="{Binding ResetToDefaultsCommand}"
-                        BackgroundColor="{DynamicResource Primary}" 
+                        Command="{Binding ResetAllToDefaultsCommand}"
+                        BackgroundColor="{DynamicResource Primary}"
                         TextColor="White"
-                        Margin="0,24,0,0"
-                        HorizontalOptions="Center"/>
+                        HorizontalOptions="End"
+                        Margin="0,0,8,0"/>
+                    <Button Text="Back to Game"
+                        Command="{Binding BackToGameCommand}"
+                        BackgroundColor="{DynamicResource Primary}"
+                        TextColor="White"
+                        Grid.Column="1"
+                        HorizontalOptions="Start"
+                        Margin="8,0,0,0"/>
+                </Grid>
             </VerticalStackLayout>
         </ScrollView>
 
@@ -248,7 +257,7 @@
                                         <BoxView Color="{Binding ColorValue}" HeightRequest="32" WidthRequest="32" HorizontalOptions="Center" VerticalOptions="Center" />
                                         <Grid.GestureRecognizers>
                                             <TapGestureRecognizer
-                                                Command="{Binding BindingContext.SelectPaletteColorCommand, Source={x:Reference Name=PaletteSwatchesGrid}}"
+                                                Command="{Binding BindingContext.SelectPaletteColorCommand, Source={x:Reference Name=SettingsRootGrid}}"
                                                 CommandParameter="{Binding .}" />
                                         </Grid.GestureRecognizers>
                                     </Grid>

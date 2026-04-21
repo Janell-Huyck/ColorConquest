@@ -1,15 +1,25 @@
+using CommunityToolkit.Mvvm.Input;
 
 using ColorConquest.Core.ViewModels;
 using ColorConquest.Core;
 using ColorConquest.Core.Services;
 using Microsoft.Maui.Controls.Shapes;
 using ColorConquest.Services;
+using ColorConquest.Core.ViewModels;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace ColorConquest.Views;
 
 public partial class SettingsPage : ContentPage
 {
     private SettingsViewModel ViewModel => (SettingsViewModel)BindingContext;
+    private ThemeViewModel ThemeVm;
+
+    private void ThemeSwitch_Toggled(object sender, ToggledEventArgs e)
+    {
+        if (ThemeVm != null)
+            ThemeVm.IsDarkTheme = e.Value;
+    }
 
     // Parameterless constructor for Shell navigation (resolves ViewModel from DI)
     public SettingsPage() : this(App.Services.GetService(typeof(SettingsViewModel)) as SettingsViewModel
@@ -18,10 +28,10 @@ public partial class SettingsPage : ContentPage
     }
 
     // Restored: Applies theming and layout to the settings page UI
-    private void ApplyForcedThemeToUi()
+    private void ApplyForcedThemeToUi(bool? forceDark = null)
     {
-        ThemeChrome.ApplyToApplication();
-        var dark = ThemeChrome.IsDarkFromPreferences();
+        var dark = forceDark ?? ThemeChrome.IsDarkFromPreferences();
+        ThemeChrome.ApplyToApplication(dark);
 
         var surfaceBg = ThemeChrome.Surface(dark);
         var stroke = dark ? Color.FromArgb("#404040") : Color.FromArgb("#ACACAC");
@@ -81,66 +91,42 @@ public partial class SettingsPage : ContentPage
         // All palette and selection UI is now handled by ViewModel and XAML bindings.
     }
 
+
     public SettingsPage(SettingsViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = viewModel;
-        // Subscribe to ViewModel property changes for immediate theme update
-        if (viewModel != null)
-            viewModel.PropertyChanged += OnViewModelPropertyChanged;
-        ApplyForcedThemeToUi();
+        ThemeVm = App.Services.GetService(typeof(ThemeViewModel)) as ThemeViewModel
+            ?? throw new InvalidOperationException("ThemeViewModel not found in DI container.");
+        // Listen for theme changes via messenger
+        WeakReferenceMessenger.Default.Register<ThemeChangedMessage>(this, (r, m) => ApplyTheme(m.IsDarkTheme));
+        ApplyTheme(ThemeVm.IsDarkTheme);
+
     }
 
-    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    private void ApplyTheme(bool isDark)
     {
-        if (e.PropertyName == nameof(SettingsViewModel.IsDarkTheme))
-        {
-            // Update the app-wide theme immediately
-            if (BindingContext is SettingsViewModel svm)
-            {
-                var appTheme = svm.IsDarkTheme
-                    ? ThemeChrome.ToAppTheme(ColorConquest.Core.Services.UserTheme.Dark)
-                    : ThemeChrome.ToAppTheme(ColorConquest.Core.Services.UserTheme.Light);
-                if (Application.Current is not null)
-                    Application.Current.UserAppTheme = appTheme;
-            }
-            ApplyForcedThemeToUi();
-        }
+        if (Application.Current is not null)
+            Application.Current.UserAppTheme = ThemeChrome.ToAppTheme(isDark ? UserTheme.Dark : UserTheme.Light);
+        ApplyForcedThemeToUi(isDark);
+        if (ThemeSwitch != null)
+            ThemeSwitch.IsToggled = isDark;
     }
 
     protected override void OnAppearing()
     {
         if (BindingContext == null)
             BindingContext = App.Services.GetService<SettingsViewModel>();
-        // No ThemeChanged event in new ViewModel
         base.OnAppearing();
-        // Always sync ViewModel and toggle with the current app theme
-        var isDark = ThemeChrome.IsDarkFromPreferences();
-        if (BindingContext is ColorConquest.Core.ViewModels.SettingsViewModel svm)
-        {
-            svm.IsDarkTheme = isDark;
-            // Sync app theme to ViewModel
-            Application.Current.UserAppTheme = ThemeChrome.ToAppTheme(isDark ? ColorConquest.Core.Services.UserTheme.Dark : ColorConquest.Core.Services.UserTheme.Light);
-        }
-        if (ThemeSwitch != null)
-            ThemeSwitch.IsToggled = isDark;
-        ApplyForcedThemeToUi();
+        // Always apply the current theme
+        ApplyTheme(ThemeVm.IsDarkTheme);
         if (Application.Current is not null)
             Application.Current.RequestedThemeChanged += OnAppRequestedThemeChanged;
     }
-    private void OnThemeChanged(object? sender, bool isDark)
-    {
-        if (Application.Current is not null)
-            Application.Current.UserAppTheme = ThemeChrome.ToAppTheme(isDark ? ColorConquest.Core.Services.UserTheme.Dark : ColorConquest.Core.Services.UserTheme.Light);
-        if (ThemeSwitch != null)
-            ThemeSwitch.IsToggled = isDark;
-    }
+    // No longer needed: OnThemeChanged handled by messenger
 
     protected override void OnDisappearing()
     {
-        // Unsubscribe from ViewModel property changes
-        if (BindingContext is SettingsViewModel vm)
-            vm.PropertyChanged -= OnViewModelPropertyChanged;
         if (Application.Current is not null)
             Application.Current.RequestedThemeChanged -= OnAppRequestedThemeChanged;
         base.OnDisappearing();

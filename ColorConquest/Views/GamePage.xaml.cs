@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using ColorConquest.Core.ViewModels;
 using ColorConquest.Services;
+using ColorConquest.Core.ViewModels;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace ColorConquest.Views;
 
@@ -14,6 +16,8 @@ public partial class GamePage : ContentPage
     private int _appliedRows;
     private int _appliedColumns;
 
+    private ThemeViewModel ThemeVm;
+
     public GamePage()
     {
         InitializeComponent();
@@ -25,6 +29,10 @@ public partial class GamePage : ContentPage
         BoardScrollArea.SizeChanged += OnBoardScrollAreaSizeChanged;
         PageLayoutGrid.SizeChanged += OnPageLayoutGridSizeChanged;
         ApplyGameGridLayout();
+        ThemeVm = App.Services.GetService(typeof(ThemeViewModel)) as ThemeViewModel
+            ?? throw new InvalidOperationException("ThemeViewModel not found in DI container.");
+        WeakReferenceMessenger.Default.Register<ThemeChangedMessage>(this, (r, m) => ApplyTheme(m.IsDarkTheme));
+        ApplyTheme(ThemeVm.IsDarkTheme);
     }
 
     private void OnBoardScrollAreaSizeChanged(object? sender, EventArgs e) =>
@@ -113,6 +121,14 @@ public partial class GamePage : ContentPage
         _viewModel.StartTimer();
 
         Dispatcher.Dispatch(UpdateBoardLayoutMetrics);
+        // Always apply the current theme
+        ApplyTheme(ThemeVm.IsDarkTheme);
+    }
+
+    private void ApplyTheme(bool isDark)
+    {
+        ThemeChrome.ApplyToApplication(isDark);
+        _viewModel.OnThemeChanged();
     }
 
     protected override void OnDisappearing()

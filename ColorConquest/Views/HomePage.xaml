@@ -1,20 +1,59 @@
 <?xml version="1.0" encoding="utf-8" ?>
+
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:ColorConquest.Converters"
              x:Class="ColorConquest.Views.HomePage"
              Title="">
 
-    <Grid RowDefinitions="*,Auto,*" Padding="20">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+            <converters:IsPrimaryToColorConverter x:Key="IsPrimaryToColor" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+
+    <Grid RowDefinitions="*,Auto,Auto,*" Padding="0,0,0,0">
+        <!-- Centered content group -->
         <VerticalStackLayout Grid.Row="1"
                              VerticalOptions="Center"
                              HorizontalOptions="Center"
-                             Spacing="32">
-                <Button x:Name="StartButton"
-                    Text="Start"
-                    FontSize="24"
-                    Padding="48,20"
-                    Command="{Binding StartGameCommand}" />
+                             Spacing="12">
+            <Label Text="Color Conquest!"
+                   FontSize="40"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="MediumVioletRed"
+                   Margin="0,0,0,4" />
+            <Frame Padding="24,36" HasShadow="True" BorderColor="Gray" CornerRadius="18" BackgroundColor="Transparent"
+                   HeightRequest="220" WidthRequest="140" HorizontalOptions="Center" VerticalOptions="Center">
+                <CollectionView ItemsSource="{Binding Animation.AnimatedCells}"
+                                ItemsLayout="VerticalGrid,3"
+                                HeightRequest="156"
+                                WidthRequest="96"
+                                SelectionMode="None"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="1" Margin="2" HasShadow="False" BorderColor="Gray" CornerRadius="4" HeightRequest="32" WidthRequest="32">
+                                <BoxView Color="{Binding IsPrimaryColor, Converter={StaticResource IsPrimaryToColor}}" HeightRequest="28" WidthRequest="28" />
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Frame>
         </VerticalStackLayout>
+        <!-- Start button with more breathing room -->
+        <Button Grid.Row="2"
+                x:Name="StartButton"
+                Text="Start"
+                FontSize="24"
+                Padding="48,20"
+                Command="{Binding Main.StartGameCommand}"
+                HorizontalOptions="Center"
+                Margin="0,24,0,0"/>
     </Grid>
 
 </ContentPage>

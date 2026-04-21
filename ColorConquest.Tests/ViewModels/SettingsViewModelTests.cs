@@ -15,7 +15,8 @@ public class SettingsViewModelTests
         var board = new GameBoardPreferences(mem);
         var display = new GameDisplayPreferences(mem);
         var tile = new TileColorPreferences(mem);
-        return new SettingsViewModel(theme, board, display, tile);
+        var themeVm = new ThemeViewModel(theme);
+        return new SettingsViewModel(theme, board, display, tile, themeVm);
     }
 
     [Fact]
@@ -27,14 +28,7 @@ public class SettingsViewModelTests
         Assert.NotNull(vm.SelectedSecondaryColor);
     }
 
-    [Fact]
-    public void ChangingIsDarkTheme_UpdatesPreference()
-    {
-        var vm = CreateViewModelWithMemoryPrefs();
-        var initial = vm.IsDarkTheme;
-        vm.IsDarkTheme = !initial;
-        Assert.Equal(!initial, vm.IsDarkTheme);
-    }
+    // Theme is now managed by ThemeViewModel. See ThemeViewModelTests for theme logic tests.
 
     [Fact]
     public void ChangingShowMoveCount_UpdatesPreference()

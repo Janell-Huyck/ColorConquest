@@ -21,13 +21,13 @@ public static class ThemeChrome
     public static Color Surface(bool dark) => dark ? DarkPage : LightPage;
 
     /// <summary>Call after app start and whenever the user changes the in-app theme.</summary>
-    public static void ApplyToApplication()
+    public static void ApplyToApplication(bool? forceDark = null)
     {
         var app = Application.Current;
         if (app?.MainPage is not Shell shell)
             return;
 
-        var dark = IsDarkFromPreferences();
+        var dark = forceDark ?? IsDarkFromPreferences();
 
         // Page.BackgroundColor on Shell drives the main content area behind flyout pages.
         shell.BackgroundColor = dark ? DarkPage : LightPage;

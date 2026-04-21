@@ -8,24 +8,14 @@ using System.Windows.Input;
 
 namespace ColorConquest.Core.ViewModels;
 
-
 public partial class SettingsViewModel : ObservableObject
 {
-	[RelayCommand]
-	public void SelectPaletteColor(TileColorOption option)
-	{
-		if (ColorPaletteTarget == "Secondary")
-			SetSecondaryColor(option);
-		else
-			SetPrimaryColor(option);
-	}
 	private readonly ThemePreferences _themePreferences;
+	private readonly ThemeViewModel _themeViewModel;
 	private readonly GameBoardPreferences _gameBoardPreferences;
 	private readonly GameDisplayPreferences _gameDisplayPreferences;
 	private readonly TileColorPreferences _tileColorPreferences;
 
-	[ObservableProperty]
-	private bool isDarkTheme;
 
 	[ObservableProperty]
 	private bool showMoveCount;
@@ -45,51 +35,48 @@ public partial class SettingsViewModel : ObservableObject
 	[ObservableProperty]
 	private TileColorOption? selectedSecondaryColor;
 
-	// New: Expose board size options for CollectionView binding
-	public IEnumerable<BoardSizeOption> BoardSizeOptions { get; }
-
-	// New: Expose SetBoardSizeCommand for CollectionView item tap
-	public ICommand SetBoardSizeCommand { get; }
-
-	// New: Expose ResetToDefaults as a command for the button
-	public IRelayCommand ResetToDefaultsCommand { get; }
-
-	// Modal state for color palette
 	[ObservableProperty]
 	private bool isColorPaletteVisible;
 
-	// Which color is being edited ("Primary" or "Secondary")
 	[ObservableProperty]
 	private string? colorPaletteTarget;
 
-	// Command to open the color palette modal
-	[RelayCommand]
-	public void ShowColorPalette(string target)
+	private IEnumerable<BoardSizeOption> _boardSizeOptions = Array.Empty<BoardSizeOption>();
+	public IEnumerable<BoardSizeOption> BoardSizeOptions
 	{
-		ColorPaletteTarget = target;
-		IsColorPaletteVisible = true;
+		get => _boardSizeOptions;
+		private set
+		{
+			_boardSizeOptions = value;
+			OnPropertyChanged();
+		}
 	}
 
-	// Command to close the color palette modal
+	public ICommand SetBoardSizeCommand { get; }
+	public IRelayCommand ResetToDefaultsCommand { get; }
+
+	// RelayCommand to reset both theme and all other settings
 	[RelayCommand]
-	public void HideColorPalette()
+	public void ResetAllToDefaults()
 	{
-		IsColorPaletteVisible = false;
-		ColorPaletteTarget = null;
+		_themeViewModel.ResetToDefault();
+		ResetToDefaults();
 	}
+
 	public SettingsViewModel(
 		ThemePreferences themePreferences,
 		GameBoardPreferences gameBoardPreferences,
 		GameDisplayPreferences gameDisplayPreferences,
-		TileColorPreferences tileColorPreferences)
+		TileColorPreferences tileColorPreferences,
+		ThemeViewModel themeViewModel)
 	{
 		_themePreferences = themePreferences;
 		_gameBoardPreferences = gameBoardPreferences;
 		_gameDisplayPreferences = gameDisplayPreferences;
 		_tileColorPreferences = tileColorPreferences;
+		_themeViewModel = themeViewModel;
 
-		// Load initial values from preferences/services
-		isDarkTheme = _themePreferences.GetSavedTheme() == UserTheme.Dark;
+		// Theme is now managed by ThemeViewModel
 		showMoveCount = _gameDisplayPreferences.GetShowMoveCount();
 		showGameTimer = _gameDisplayPreferences.GetShowGameTimer();
 		selectedBoardSize = _gameBoardPreferences.GetBoardSize();
@@ -100,73 +87,112 @@ public partial class SettingsViewModel : ObservableObject
 		isColorPaletteVisible = false;
 		colorPaletteTarget = null;
 
-		// Provide board size options for the UI
-		BoardSizeOptions = new[]
+		BoardSizeOptions = new List<BoardSizeOption>
 		{
-			new BoardSizeOption(BoardSize.Easy, "Easy 3×3"),
-			new BoardSizeOption(BoardSize.Medium, "Medium 5×5"),
-			new BoardSizeOption(BoardSize.Hard, "Hard 9×9")
+			new BoardSizeOption(BoardSize.Easy, "Easy 3×3", SelectedBoardSize == BoardSize.Easy),
+			new BoardSizeOption(BoardSize.Medium, "Medium 5×5", SelectedBoardSize == BoardSize.Medium),
+			new BoardSizeOption(BoardSize.Hard, "Hard 9×9", SelectedBoardSize == BoardSize.Hard)
 		};
 
 		SetBoardSizeCommand = new RelayCommand<BoardSize>(SetBoardSize);
 		ResetToDefaultsCommand = new RelayCommand(ResetToDefaults);
-
-		// Ensure IsSelected is set for the initial board size
 		UpdateBoardSizeSelections();
 	}
 
-	// Helper class for board size options
-	public partial class BoardSizeOption : ObservableObject
+	[RelayCommand]
+	private async Task BackToGame()
 	{
-		public BoardSize Size { get; }
-		public string Label { get; }
-		[ObservableProperty]
-		private bool isSelected;
+		await Microsoft.Maui.Controls.Shell.Current.GoToAsync("//GamePage");
+	}
 
-		public BoardSizeOption(BoardSize size, string label)
-		{
-			Size = size;
-			Label = label;
-		}
+	[RelayCommand]
+	public void SelectPaletteColor(TileColorOption option)
+	{
+		if (ColorPaletteTarget == "Secondary")
+			SetSecondaryColor(option);
+		else
+			SetPrimaryColor(option);
 	}
 
 	private void SetBoardSize(BoardSize size)
 	{
-		SelectedBoardSize = size;
-		UpdateBoardSizeSelections();
+		if (SelectedBoardSize != size)
+		{
+			SelectedBoardSize = size;
+			_gameBoardPreferences.SetBoardSize(size);
+			UpdateBoardSizeSelections();
+		}
 	}
 
-	// Now called by ResetToDefaultsCommand
-	public void ResetToDefaults()
+	private void ResetToDefaults()
 	{
-		_themePreferences.Reset();
+		// Theme reset is handled by ThemeViewModel. Do not reset theme here.
 		_gameBoardPreferences.Reset();
 		_gameDisplayPreferences.Reset();
 		_tileColorPreferences.Reset();
-		// Reload all properties from preferences/services
-		IsDarkTheme = _themePreferences.GetSavedTheme() == UserTheme.Dark;
+
+		// Theme is now managed by ThemeViewModel
+
 		ShowMoveCount = _gameDisplayPreferences.GetShowMoveCount();
 		ShowGameTimer = _gameDisplayPreferences.GetShowGameTimer();
 		SelectedBoardSize = _gameBoardPreferences.GetBoardSize();
 		AvailableColors = new ObservableCollection<TileColorOption>(_tileColorPreferences.GetAvailableColors());
 		SelectedPrimaryColor = _tileColorPreferences.GetPrimaryColor();
 		SelectedSecondaryColor = _tileColorPreferences.GetSecondaryColor();
+		IsColorPaletteVisible = false;
+		ColorPaletteTarget = null;
+		UpdateBoardSizeSelections();
 	}
 
 	private void UpdateBoardSizeSelections()
-    {
-        foreach (var option in BoardSizeOptions)
-        {
-            if (option is BoardSizeOption bso)
-                bso.IsSelected = (bso.Size == SelectedBoardSize);
-        }
-    }
-
-	partial void OnIsDarkThemeChanged(bool value)
 	{
-		_themePreferences.SaveTheme(value ? UserTheme.Dark : UserTheme.Light);
-		// UI layer is responsible for updating Application.Current.UserAppTheme
+		BoardSizeOptions = new List<BoardSizeOption>
+		{
+			new BoardSizeOption(BoardSize.Easy, "Easy 3×3", SelectedBoardSize == BoardSize.Easy),
+			new BoardSizeOption(BoardSize.Medium, "Medium 5×5", SelectedBoardSize == BoardSize.Medium),
+			new BoardSizeOption(BoardSize.Hard, "Hard 9×9", SelectedBoardSize == BoardSize.Hard)
+		};
 	}
+
+	[RelayCommand]
+	private void SetPrimaryColor(TileColorOption option)
+	{
+		if (SelectedPrimaryColor != option)
+		{
+			SelectedPrimaryColor = option;
+			_tileColorPreferences.SetPrimaryColorKey(option.Key);
+		}
+		IsColorPaletteVisible = false;
+		ColorPaletteTarget = null;
+	}
+
+	[RelayCommand]
+	private void SetSecondaryColor(TileColorOption option)
+	{
+		if (SelectedSecondaryColor != option)
+		{
+			SelectedSecondaryColor = option;
+			_tileColorPreferences.SetSecondaryColorKey(option.Key);
+		}
+		IsColorPaletteVisible = false;
+		ColorPaletteTarget = null;
+	}
+
+	[RelayCommand]
+	private void ShowColorPalette(string? target)
+	{
+		IsColorPaletteVisible = true;
+		ColorPaletteTarget = target;
+	}
+
+	[RelayCommand]
+	private void HideColorPalette()
+	{
+		IsColorPaletteVisible = false;
+		ColorPaletteTarget = null;
+	}
+
+	// Theme is now managed by ThemeViewModel
 
 	partial void OnShowMoveCountChanged(bool value)
 	{
@@ -181,23 +207,6 @@ public partial class SettingsViewModel : ObservableObject
 	partial void OnSelectedBoardSizeChanged(BoardSize value)
 	{
 		_gameBoardPreferences.SetBoardSize(value);
-	}
-
-	[RelayCommand]
-	public void SetPrimaryColor(TileColorOption option)
-	{
-		_tileColorPreferences.SetPrimaryColorKey(option.Key);
-		SelectedPrimaryColor = option;
-		IsColorPaletteVisible = false;
-		ColorPaletteTarget = null;
-	}
-
-	[RelayCommand]
-	public void SetSecondaryColor(TileColorOption option)
-	{
-		_tileColorPreferences.SetSecondaryColorKey(option.Key);
-		SelectedSecondaryColor = option;
-		IsColorPaletteVisible = false;
-		ColorPaletteTarget = null;
+		UpdateBoardSizeSelections();
 	}
 }
