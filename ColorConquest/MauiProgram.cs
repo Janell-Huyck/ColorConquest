@@ -17,9 +17,6 @@ namespace ColorConquest
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-#if DEBUG
-    		builder.Logging.AddDebug();
-#endif
 
             // Register all Core services for DI
             builder.Services.AddSingleton<ColorConquest.Core.Services.ThemePreferences>(sp => new ColorConquest.Core.Services.ThemePreferences(AppServices.Preferences));

@@ -184,7 +184,7 @@
                                 <DataTemplate>
                                     <Border StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,10">
                                         <Border.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding SetBoardSizeCommand}" CommandParameter="{Binding Size}" />
+                                            <TapGestureRecognizer Command="{Binding BindingContext.SetBoardSizeCommand, Source={x:Reference SettingsRootGrid}}" CommandParameter="{Binding Size}" />
                                         </Border.GestureRecognizers>
                                         <Grid ColumnDefinitions="*,Auto">
                                             <Label Text="{Binding Label}" VerticalOptions="Center" LineBreakMode="TailTruncation" />
