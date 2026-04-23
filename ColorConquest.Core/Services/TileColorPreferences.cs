@@ -71,7 +71,11 @@ public class TileColorPreferences
     {
         if (Colors.Count == 0)
             return new TileColorOption("", "", "#000000");
-        return GetByKeySafe(GetPrimaryColorKey(), Colors[0])!;
+        var key = GetPrimaryColorKey();
+        foreach (var c in Colors)
+            if (c.Key == key)
+                return c;
+        return Colors[0];
     }
 
     public TileColorOption GetSecondaryColor()
@@ -80,9 +84,12 @@ public class TileColorPreferences
             return new TileColorOption("", "", "#000000");
         if (Colors.Count == 1)
             return Colors[0];
-        return GetByKeySafe(GetSecondaryColorKey(), Colors[1])!;
+        var key = GetSecondaryColorKey();
+        foreach (var c in Colors)
+            if (c.Key == key)
+                return c;
+        return Colors[1];
     }
 
-    private TileColorOption GetByKeySafe(string key, TileColorOption fallback)
-        => Colors.FirstOrDefault(c => c.Key == key) ?? fallback;
+    // Removed GetByKeySafe; logic is now inlined above for null-safety.
 }
