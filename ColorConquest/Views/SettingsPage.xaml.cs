@@ -116,6 +116,8 @@ public partial class SettingsPage : ContentPage
     {
         if (BindingContext == null)
         {
+            if (App.Services is null)
+                throw new InvalidOperationException("App.Services is null.");
             var vm = App.Services.GetService<SettingsViewModel>();
             if (vm is null)
                 throw new InvalidOperationException("SettingsViewModel not found in DI container.");
