@@ -75,20 +75,18 @@ public class TileColorPreferences
         foreach (var c in Colors)
             if (c.Key == key)
                 return c;
-        return Colors[0];
+        return new TileColorOption("", "", "#000000");
     }
 
     public TileColorOption GetSecondaryColor()
     {
         if (Colors.Count == 0)
             return new TileColorOption("", "", "#000000");
-        if (Colors.Count == 1)
-            return Colors[0];
         var key = GetSecondaryColorKey();
         foreach (var c in Colors)
             if (c.Key == key)
                 return c;
-        return Colors[1];
+        return new TileColorOption("", "", "#000000");
     }
 
     // Removed GetByKeySafe; logic is now inlined above for null-safety.
