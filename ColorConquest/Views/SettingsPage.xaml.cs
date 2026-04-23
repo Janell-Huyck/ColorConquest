@@ -115,7 +115,12 @@ public partial class SettingsPage : ContentPage
     protected override void OnAppearing()
     {
         if (BindingContext == null)
-            BindingContext = App.Services.GetService<SettingsViewModel>();
+        {
+            var vm = App.Services.GetService<SettingsViewModel>();
+            if (vm is null)
+                throw new InvalidOperationException("SettingsViewModel not found in DI container.");
+            BindingContext = vm;
+        }
         base.OnAppearing();
         // Always apply the current theme
         ApplyTheme(ThemeVm.IsDarkTheme);
